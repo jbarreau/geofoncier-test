@@ -1,0 +1,37 @@
+# Conventional Commits enforcement
+# Install: npm install --save-dev @commitlint/cli @commitlint/config-conventional
+# Or use the pre-commit hook in .pre-commit-config.yaml
+extends:
+  - "@commitlint/config-conventional"
+
+rules:
+  # Enforce scope to known services (optional – set to [1, always, [...]] to warn)
+  scope-enum:
+    - 1  # 0=off, 1=warn, 2=error
+    - always
+    - - auth-service
+      - task-service
+      - analytics-service
+      - docker
+      - ci
+      - deps
+      - release
+      - root
+  header-max-length:
+    - 2
+    - always
+    - 72
+  type-enum:
+    - 2
+    - always
+    - - feat      # new feature → minor bump
+      - fix       # bug fix → patch bump
+      - perf      # performance → patch bump
+      - refactor  # refactor → patch bump
+      - chore     # maintenance → no release
+      - docs      # documentation → no release
+      - style     # formatting → no release
+      - test      # tests → no release
+      - ci        # CI/CD changes → no release
+      - build     # build system → no release
+      - revert    # revert a commit → patch bump
