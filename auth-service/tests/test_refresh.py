@@ -14,9 +14,12 @@ class TestRefresh:
             AsyncMock(return_value=new_tokens),
         )
 
-        resp = await client.post("/auth/refresh", json={
-            "refresh_token": f"{uuid.uuid4()}:{uuid.uuid4()}",
-        })
+        resp = await client.post(
+            "/auth/refresh",
+            json={
+                "refresh_token": f"{uuid.uuid4()}:{uuid.uuid4()}",
+            },
+        )
 
         assert resp.status_code == 200
         data = resp.json()
@@ -41,9 +44,12 @@ class TestRefresh:
             AsyncMock(side_effect=InvalidRefreshTokenError()),
         )
 
-        resp = await client.post("/auth/refresh", json={
-            "refresh_token": f"{uuid.uuid4()}:{uuid.uuid4()}",
-        })
+        resp = await client.post(
+            "/auth/refresh",
+            json={
+                "refresh_token": f"{uuid.uuid4()}:{uuid.uuid4()}",
+            },
+        )
 
         assert resp.status_code == 401
 

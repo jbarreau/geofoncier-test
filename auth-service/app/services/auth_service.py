@@ -146,7 +146,9 @@ async def refresh_tokens(
     )
     token_record = result.scalar_one_or_none()
 
-    if token_record is None or not verify_refresh_token(raw_refresh_token, token_record.token_hash):
+    if token_record is None or not verify_refresh_token(
+        raw_refresh_token, token_record.token_hash
+    ):
         raise InvalidRefreshTokenError()
 
     user_result = await db.execute(select(User).where(User.id == token_record.user_id))
@@ -193,7 +195,11 @@ async def logout_user(
     try:
         payload = decode_access_token(access_token)
         jti = payload["jti"]
-        exp = int(payload["exp"].timestamp()) if hasattr(payload["exp"], "timestamp") else int(payload["exp"])
+        exp = (
+            int(payload["exp"].timestamp())
+            if hasattr(payload["exp"], "timestamp")
+            else int(payload["exp"])
+        )
         now_ts = int(datetime.now(timezone.utc).timestamp())
         ttl = max(exp - now_ts, 1)
         await redis.setex(f"blacklist:{jti}", ttl, "1")
@@ -218,7 +224,9 @@ async def logout_user(
     )
     token_record = result.scalar_one_or_none()
 
-    if token_record and verify_refresh_token(raw_refresh_token, token_record.token_hash):
+    if token_record and verify_refresh_token(
+        raw_refresh_token, token_record.token_hash
+    ):
         token_record.revoked = True
         db.add(token_record)
         await db.commit()
