@@ -1,5 +1,71 @@
 # README.md
 
+## Quick Start
+
+### Prerequisites
+
+- Docker & docker-compose (Docker Desktop ≥ 4.x)
+
+### Launch
+
+```bash
+# First run: builds images, generates RSA keys, runs migrations, seeds the DB
+docker compose up --build
+
+# Subsequent runs (no rebuild needed)
+docker compose up
+```
+
+The startup sequence is automatic:
+
+1. **keygen** — generates an RSA-2048 key pair into a named Docker volume (`jwt_keys`). Skipped on subsequent runs.
+2. **migrate** — runs `alembic upgrade head` for `auth-service`. Idempotent.
+3. **seed** — inserts default roles, permissions, and users. Idempotent.
+4. **auth-service / task-service / analytics-service** — start once the above complete.
+
+### Default accounts (seed data)
+
+| Email | Password | Role |
+|---|---|---|
+| admin@geofoncier.local | admin123 | admin |
+| user@geofoncier.local | user123 | user |
+| viewer@geofoncier.local | viewer123 | viewer |
+
+### Service URLs
+
+| Service | URL |
+|---|---|
+| auth-service | http://localhost:8000 |
+| task-service | http://localhost:8001 |
+| analytics-service | http://localhost:8002 |
+
+---
+
+## Mock Data (optional)
+
+Insert ~20 fake users to populate the database for front-end development:
+
+```bash
+# One-shot run against the running stack
+docker compose --profile mock run --rm mock-data
+```
+
+All mock accounts share the password `password123` and are assigned `user` or `viewer` roles.
+Email format: `firstname.lastnameN@mock.geofoncier.local`
+
+To add more mock data, simply re-run the command — it skips already-existing emails.
+
+You can also run the script directly (requires Python 3.12 + auth-service deps):
+
+```bash
+cd auth-service
+source venv/bin/activate
+DATABASE_URL=postgresql+asyncpg://geofoncier:geofoncier@localhost/geofoncier \
+    python ../scripts/mock_data.py
+```
+
+---
+
 ## Project Overview
 
 **Geofoncier – Test technique**: Task management application with user and permission management. This is a Senior Backend/Fullstack technical assessment featuring three independent FastAPI services coordinated via docker-compose.

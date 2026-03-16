@@ -24,6 +24,53 @@ services:
       timeout: 5s
       retries: 5
 
+  # Generates RSA-2048 key pair on first run; keys are persisted in the
+  # jwt_keys named volume and shared with all services that need them.
+  keygen:
+    image: alpine:3.19
+    command: >
+      sh -c "
+        apk add --no-cache openssl &&
+        if [ ! -f /keys/private.pem ]; then
+          openssl genrsa -out /keys/private.pem 2048 &&
+          openssl rsa -in /keys/private.pem -pubout -out /keys/public.pem &&
+          echo '[keygen] RSA key pair generated.'
+        else
+          echo '[keygen] Keys already exist, skipping.'
+        fi
+      "
+    volumes:
+      - jwt_keys:/keys
+
+  # Runs Alembic migrations for auth-service (idempotent).
+  migrate:
+    build: ./auth-service
+    command: alembic upgrade head
+    environment:
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      JWT_PRIVATE_KEY_PATH: /keys/private.pem
+      JWT_PUBLIC_KEY_PATH: /keys/public.pem
+    volumes:
+      - jwt_keys:/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keygen:
+        condition: service_completed_successfully
+
+  # Inserts default roles, permissions, and three seed users (idempotent).
+  # Default credentials: see scripts/seed.py or README.
+  seed:
+    build: ./auth-service
+    command: python /scripts/seed.py
+    environment:
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+    volumes:
+      - ./scripts:/scripts
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
   auth-service:
     build: ./auth-service
     ports:
@@ -31,9 +78,13 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
       REDIS_URL: redis://redis:6379
+      JWT_PRIVATE_KEY_PATH: /keys/private.pem
+      JWT_PUBLIC_KEY_PATH: /keys/public.pem
+    volumes:
+      - jwt_keys:/keys
     depends_on:
-      postgres:
-        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
 
@@ -45,9 +96,12 @@ services:
       DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
       REDIS_URL: redis://redis:6379
       AUTH_SERVICE_URL: http://auth-service:8000
+      JWT_PUBLIC_KEY_PATH: /keys/public.pem
+    volumes:
+      - jwt_keys:/keys
     depends_on:
-      postgres:
-        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
 
@@ -59,11 +113,31 @@ services:
       DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
       REDIS_URL: redis://redis:6379
       AUTH_SERVICE_URL: http://auth-service:8000
+      JWT_PUBLIC_KEY_PATH: /keys/public.pem
+    volumes:
+      - jwt_keys:/keys
     depends_on:
-      postgres:
-        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
 
+  # Optional: insert ~20 fake users for development.
+  # Run once after the stack is up:
+  #   docker compose --profile mock run --rm mock-data
+  mock-data:
+    build: ./auth-service
+    profiles:
+      - mock
+    command: python /scripts/mock_data.py
+    environment:
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+    volumes:
+      - ./scripts:/scripts
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+
 volumes:
   postgres_data:
+  jwt_keys:
