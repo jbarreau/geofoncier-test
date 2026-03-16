@@ -17,8 +17,13 @@ git config user.email "<claude-code@automation.local>"
 
 Use Conventional Commits:
 
-feat(scope): description
-fix(scope): description
+feat(scope): description      → minor release
+fix(scope): description       → patch release
+chore(scope): description     → no release (maintenance, deps, config)
+chore(ci): description        → no release (CI/CD changes — never use `ci:` alone)
+docs(scope): description      → no release
+refactor(scope): description  → patch release
+perf(scope): description      → patch release
 
 ## Pull Request Rules
 
