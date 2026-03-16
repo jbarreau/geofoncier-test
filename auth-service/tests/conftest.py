@@ -16,10 +16,14 @@ def rsa_key_pair():
         serialization.PrivateFormat.TraditionalOpenSSL,
         serialization.NoEncryption(),
     ).decode()
-    public_pem = private_key.public_key().public_bytes(
-        serialization.Encoding.PEM,
-        serialization.PublicFormat.SubjectPublicKeyInfo,
-    ).decode()
+    public_pem = (
+        private_key.public_key()
+        .public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        .decode()
+    )
     return private_pem, public_pem
 
 
@@ -63,7 +67,9 @@ async def client(mock_db, mock_redis, patch_settings):
     app.dependency_overrides[get_db] = _get_db
     app.dependency_overrides[get_redis] = _get_redis
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as c:
         yield c
 
     app.dependency_overrides.clear()

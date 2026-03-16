@@ -47,4 +47,6 @@ class RolePermission(Base):
     )
 
     role: Mapped["Role"] = relationship("Role", back_populates="permissions")
-    permission: Mapped["Permission"] = relationship("Permission", back_populates="roles")
+    permission: Mapped["Permission"] = relationship(
+        "Permission", back_populates="roles"
+    )

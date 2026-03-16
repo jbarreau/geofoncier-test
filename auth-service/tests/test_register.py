@@ -7,12 +7,17 @@ from .helpers import make_user
 
 class TestRegister:
     async def test_success_returns_201_without_password(self, client, mocker):
-        mocker.patch("app.routes.auth.register_user", AsyncMock(return_value=make_user()))
+        mocker.patch(
+            "app.routes.auth.register_user", AsyncMock(return_value=make_user())
+        )
 
-        resp = await client.post("/auth/register", json={
-            "email": "user@example.com",
-            "password": "securepass123",
-        })
+        resp = await client.post(
+            "/auth/register",
+            json={
+                "email": "user@example.com",
+                "password": "securepass123",
+            },
+        )
 
         assert resp.status_code == 201
         data = resp.json()
@@ -27,34 +32,46 @@ class TestRegister:
             AsyncMock(side_effect=EmailAlreadyExistsError()),
         )
 
-        resp = await client.post("/auth/register", json={
-            "email": "taken@example.com",
-            "password": "securepass123",
-        })
+        resp = await client.post(
+            "/auth/register",
+            json={
+                "email": "taken@example.com",
+                "password": "securepass123",
+            },
+        )
 
         assert resp.status_code == 409
 
     async def test_invalid_email_returns_422(self, client):
-        resp = await client.post("/auth/register", json={
-            "email": "not-an-email",
-            "password": "securepass123",
-        })
+        resp = await client.post(
+            "/auth/register",
+            json={
+                "email": "not-an-email",
+                "password": "securepass123",
+            },
+        )
 
         assert resp.status_code == 422
 
     async def test_password_too_short_returns_422(self, client):
-        resp = await client.post("/auth/register", json={
-            "email": "user@example.com",
-            "password": "short",
-        })
+        resp = await client.post(
+            "/auth/register",
+            json={
+                "email": "user@example.com",
+                "password": "short",
+            },
+        )
 
         assert resp.status_code == 422
 
     async def test_password_too_long_returns_422(self, client):
-        resp = await client.post("/auth/register", json={
-            "email": "user@example.com",
-            "password": "x" * 129,
-        })
+        resp = await client.post(
+            "/auth/register",
+            json={
+                "email": "user@example.com",
+                "password": "x" * 129,
+            },
+        )
 
         assert resp.status_code == 422
 

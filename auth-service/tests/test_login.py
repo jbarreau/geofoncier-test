@@ -7,12 +7,17 @@ from .helpers import make_tokens
 
 class TestLogin:
     async def test_success_returns_token_pair(self, client, mocker):
-        mocker.patch("app.routes.auth.login_user", AsyncMock(return_value=make_tokens()))
+        mocker.patch(
+            "app.routes.auth.login_user", AsyncMock(return_value=make_tokens())
+        )
 
-        resp = await client.post("/auth/login", json={
-            "email": "user@example.com",
-            "password": "securepass123",
-        })
+        resp = await client.post(
+            "/auth/login",
+            json={
+                "email": "user@example.com",
+                "password": "securepass123",
+            },
+        )
 
         assert resp.status_code == 200
         data = resp.json()
@@ -26,10 +31,13 @@ class TestLogin:
             AsyncMock(side_effect=InvalidCredentialsError()),
         )
 
-        resp = await client.post("/auth/login", json={
-            "email": "user@example.com",
-            "password": "wrongpassword",
-        })
+        resp = await client.post(
+            "/auth/login",
+            json={
+                "email": "user@example.com",
+                "password": "wrongpassword",
+            },
+        )
 
         assert resp.status_code == 401
         assert resp.headers["www-authenticate"] == "Bearer"
@@ -40,10 +48,13 @@ class TestLogin:
             AsyncMock(side_effect=InvalidCredentialsError()),
         )
 
-        resp = await client.post("/auth/login", json={
-            "email": "nobody@example.com",
-            "password": "securepass123",
-        })
+        resp = await client.post(
+            "/auth/login",
+            json={
+                "email": "nobody@example.com",
+                "password": "securepass123",
+            },
+        )
 
         assert resp.status_code == 401
 
@@ -53,10 +64,13 @@ class TestLogin:
             AsyncMock(side_effect=InactiveUserError()),
         )
 
-        resp = await client.post("/auth/login", json={
-            "email": "inactive@example.com",
-            "password": "securepass123",
-        })
+        resp = await client.post(
+            "/auth/login",
+            json={
+                "email": "inactive@example.com",
+                "password": "securepass123",
+            },
+        )
 
         assert resp.status_code == 403
 

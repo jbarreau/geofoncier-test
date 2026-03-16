@@ -82,6 +82,10 @@ jobs:
         working-directory: ${{ matrix.service }}
         run: poetry install --with dev
 
+      - name: Format check (black)
+        working-directory: ${{ matrix.service }}
+        run: poetry run black --check .
+
       - name: Run tests with coverage
         working-directory: ${{ matrix.service }}
         env:
