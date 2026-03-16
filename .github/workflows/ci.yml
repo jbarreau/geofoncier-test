@@ -65,6 +65,7 @@ jobs:
             --cov=app \
             --cov-report=xml \
             --tb=short \
+            --debug=trace \
             -v
 
       - name: Upload coverage to Codecov
