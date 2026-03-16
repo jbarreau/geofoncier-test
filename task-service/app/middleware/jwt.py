@@ -15,7 +15,9 @@ async def get_current_user(
     redis=Depends(get_redis),
 ) -> CurrentUser:
     if credentials is None:
-        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+        raise HTTPException(
+            status_code=401, detail="Missing or invalid Authorization header"
+        )
 
     token = credentials.credentials
     try:
@@ -46,12 +48,14 @@ async def get_current_user(
 def require_permission(permission: str) -> Depends:
     """Dependency factory — use as a route dependency:
 
-        @router.post("/tasks")
-        async def create_task(user: CurrentUser = require_permission("task:create")):
-            ...
+    @router.post("/tasks")
+    async def create_task(user: CurrentUser = require_permission("task:create")):
+        ...
     """
 
-    async def _check(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+    async def _check(
+        current_user: CurrentUser = Depends(get_current_user),
+    ) -> CurrentUser:
         if permission not in current_user.permissions:
             raise HTTPException(
                 status_code=403,

@@ -15,7 +15,9 @@ class Settings(BaseSettings):
         if self.jwt_public_key_path:
             with open(self.jwt_public_key_path) as f:
                 return f.read()
-        raise ValueError("No JWT public key configured. Set JWT_PUBLIC_KEY or JWT_PUBLIC_KEY_PATH.")
+        raise ValueError(
+            "No JWT public key configured. Set JWT_PUBLIC_KEY or JWT_PUBLIC_KEY_PATH."
+        )
 
 
 settings = Settings()

@@ -13,10 +13,10 @@ from app.middleware.jwt import get_current_user, require_permission
 from app.redis_client import close_redis, get_redis
 from app.schemas.auth import CurrentUser
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_token(private_key: str, payload_overrides: dict | None = None) -> str:
     now = datetime.now(timezone.utc)
@@ -45,10 +45,13 @@ def _make_app(permission: str | None = None) -> FastAPI:
     app.dependency_overrides[_get_redis] = lambda: mock_redis
 
     if permission:
+
         @app.get("/protected")
         async def protected(user: CurrentUser = require_permission(permission)):
             return {"user_id": str(user.user_id)}
+
     else:
+
         @app.get("/protected")
         async def protected_no_perm(user: CurrentUser = Depends(get_current_user)):
             return {"user_id": str(user.user_id)}
@@ -59,6 +62,7 @@ def _make_app(permission: str | None = None) -> FastAPI:
 # ---------------------------------------------------------------------------
 # CurrentUser schema
 # ---------------------------------------------------------------------------
+
 
 class TestCurrentUser:
     def test_valid(self):
@@ -72,6 +76,7 @@ class TestCurrentUser:
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
+
 
 class TestConfig:
     def test_public_key_inline(self):
@@ -94,17 +99,20 @@ class TestConfig:
 # Redis client
 # ---------------------------------------------------------------------------
 
+
 class TestRedisClient:
     @pytest.fixture(autouse=True)
     async def reset_redis(self):
         """Ensure _client is None before and after each test."""
         import app.redis_client as rc
+
         rc._client = None
         yield
         rc._client = None
 
     async def test_get_redis_creates_client(self):
         import app.redis_client as rc
+
         mock_client = MagicMock()
         with patch("redis.asyncio.from_url", return_value=mock_client) as mock_from_url:
             client = await rc.get_redis()
@@ -113,6 +121,7 @@ class TestRedisClient:
 
     async def test_get_redis_singleton(self):
         import app.redis_client as rc
+
         mock_client = MagicMock()
         with patch("redis.asyncio.from_url", return_value=mock_client):
             c1 = await rc.get_redis()
@@ -121,6 +130,7 @@ class TestRedisClient:
 
     async def test_close_redis(self):
         import app.redis_client as rc
+
         mock_client = AsyncMock()
         rc._client = mock_client
         await rc.close_redis()
@@ -129,6 +139,7 @@ class TestRedisClient:
 
     async def test_close_redis_noop_when_none(self):
         import app.redis_client as rc
+
         rc._client = None
         await rc.close_redis()  # Should not raise
 
@@ -136,6 +147,7 @@ class TestRedisClient:
 # ---------------------------------------------------------------------------
 # JWT middleware - get_current_user
 # ---------------------------------------------------------------------------
+
 
 class TestGetCurrentUser:
     @pytest.fixture
@@ -146,7 +158,9 @@ class TestGetCurrentUser:
         app, _ = _make_app()
         token = _make_token(rsa_key_pair["private_key"])
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 200
         assert "user_id" in resp.json()
 
@@ -164,14 +178,18 @@ class TestGetCurrentUser:
             {"exp": datetime.now(timezone.utc) - timedelta(seconds=1)},
         )
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 401
         assert "expired" in resp.json()["detail"].lower()
 
     def test_invalid_signature(self, rsa_key_pair):
         from cryptography.hazmat.primitives.asymmetric import rsa as _rsa
+
         other_private = _rsa.generate_private_key(public_exponent=65537, key_size=2048)
         from cryptography.hazmat.primitives import serialization
+
         other_private_pem = other_private.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
@@ -180,7 +198,9 @@ class TestGetCurrentUser:
         app, _ = _make_app()
         token = _make_token(other_private_pem)  # signed with different key
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 401
         assert "Invalid token" in resp.json()["detail"]
 
@@ -189,7 +209,9 @@ class TestGetCurrentUser:
         mock_redis.get = AsyncMock(return_value="1")  # blacklisted
         token = _make_token(rsa_key_pair["private_key"])
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 401
         assert "revoked" in resp.json()["detail"].lower()
 
@@ -207,7 +229,9 @@ class TestGetCurrentUser:
         }
         token = jwt.encode(payload, rsa_key_pair["private_key"], algorithm="RS256")
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 401
         assert "Invalid token payload" in resp.json()["detail"]
 
@@ -215,7 +239,9 @@ class TestGetCurrentUser:
         app, _ = _make_app()
         token = _make_token(rsa_key_pair["private_key"], {"sub": "not-a-uuid"})
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 401
         assert "Invalid token payload" in resp.json()["detail"]
 
@@ -234,7 +260,9 @@ class TestGetCurrentUser:
         }
         token = jwt.encode(payload, rsa_key_pair["private_key"], algorithm="RS256")
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 200
 
 
@@ -242,19 +270,24 @@ class TestGetCurrentUser:
 # require_permission decorator
 # ---------------------------------------------------------------------------
 
+
 class TestRequirePermission:
     def test_has_permission(self, rsa_key_pair):
         app, _ = _make_app(permission="task:read")
         token = _make_token(rsa_key_pair["private_key"], {"permissions": ["task:read"]})
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 200
 
     def test_missing_permission(self, rsa_key_pair):
         app, _ = _make_app(permission="task:create")
         token = _make_token(rsa_key_pair["private_key"], {"permissions": ["task:read"]})
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 403
         assert "task:create" in resp.json()["detail"]
 
@@ -265,14 +298,18 @@ class TestRequirePermission:
             {"permissions": ["task:read", "task:create", "task:delete"]},
         )
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 200
 
     def test_no_permissions_in_token(self, rsa_key_pair):
         app, _ = _make_app(permission="task:create")
         token = _make_token(rsa_key_pair["private_key"], {"permissions": []})
         with TestClient(app) as client:
-            resp = client.get("/protected", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/protected", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 403
 
 
@@ -280,9 +317,11 @@ class TestRequirePermission:
 # main.py
 # ---------------------------------------------------------------------------
 
+
 class TestMain:
     def test_health(self):
         from app.main import app
+
         with TestClient(app) as client:
             resp = client.get("/health")
         assert resp.status_code == 200
@@ -290,9 +329,11 @@ class TestMain:
 
     async def test_shutdown_closes_redis(self):
         import app.redis_client as rc
+
         mock_client = AsyncMock()
         rc._client = mock_client
         from app.main import shutdown
+
         await shutdown()
         mock_client.aclose.assert_awaited_once()
         rc._client = None
