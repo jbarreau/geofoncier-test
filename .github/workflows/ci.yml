@@ -63,7 +63,7 @@ jobs:
           pytest \
             --cov=app \
             --cov-report=xml \
-            --cov-report=term-missing \
+            # --cov-report=term-missing \
             --tb=short \
             -v
 
