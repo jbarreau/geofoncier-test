@@ -59,11 +59,11 @@ jobs:
         env:
           DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@localhost/geofoncier_test
           REDIS_URL: redis://localhost:6379
+        # --cov-report=term-missing \
         run: |
           pytest \
             --cov=app \
             --cov-report=xml \
-            # --cov-report=term-missing \
             --tb=short \
             -v
 
