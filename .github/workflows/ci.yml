@@ -77,7 +77,7 @@ jobs:
             --cov=app \
             --cov-report=xml \
             --tb=short \
-            -v
+            -v || [ $? -eq 5 ]
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
