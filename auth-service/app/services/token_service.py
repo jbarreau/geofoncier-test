@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -5,6 +6,11 @@ import bcrypt
 import jwt
 
 from ..config import settings
+
+
+def _bcrypt_safe(value: str) -> bytes:
+    """SHA-256 pre-hash to stay within bcrypt's 72-byte input limit."""
+    return hashlib.sha256(value.encode()).digest()
 
 
 def _utcnow() -> datetime:
@@ -44,13 +50,16 @@ def create_refresh_token() -> tuple[str, str, datetime, uuid.UUID]:
     db_id = uuid.uuid4()
     secret = str(uuid.uuid4())
     raw = f"{db_id}:{secret}"
-    token_hash = bcrypt.hashpw(raw.encode(), bcrypt.gensalt()).decode()
+    token_hash = bcrypt.hashpw(_bcrypt_safe(raw), bcrypt.gensalt()).decode()
     expires_at = _utcnow() + timedelta(days=settings.refresh_token_expire_days)
     return raw, token_hash, expires_at, db_id
 
 
 def verify_refresh_token(raw: str, stored_hash: str) -> bool:
-    return bcrypt.checkpw(raw.encode(), stored_hash.encode())
+    try:
+        return bcrypt.checkpw(_bcrypt_safe(raw), stored_hash.encode())
+    except ValueError:
+        return False
 
 
 def decode_access_token(token: str) -> dict:
