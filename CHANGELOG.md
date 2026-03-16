@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/jbarreau/geofoncier-test/compare/v1.0.0...v1.1.0) (2026-03-16)
+
+### Features
+
+* **task-service:** add JWT RS256 middleware with Redis blacklist and require_permission ([#6](https://github.com/jbarreau/geofoncier-test/issues/6)) ([b3f4325](https://github.com/jbarreau/geofoncier-test/commit/b3f4325edc58bc84e8b02ee2ba15c2c6d4051533))
+
 ## 1.0.0 (2026-03-16)
 
 ### Features
