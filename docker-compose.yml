@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: geofoncier
+      POSTGRES_PASSWORD: geofoncier
+      POSTGRES_DB: geofoncier
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geofoncier"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  task-service:
+    build: ./task-service
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      REDIS_URL: redis://redis:6379
+      AUTH_SERVICE_URL: http://auth-service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  analytics-service:
+    build: ./analytics-service
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      REDIS_URL: redis://redis:6379
+      AUTH_SERVICE_URL: http://auth-service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

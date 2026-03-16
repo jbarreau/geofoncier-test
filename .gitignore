@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Virtualenvs
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+
+# JWT keys
+keys/
+*.pem
+
+# Coverage
+.coverage
+htmlcov/
+
+# Mypy
+.mypy_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
