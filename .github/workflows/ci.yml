@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feat/**", "fix/**", "chore/**", "refactor/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [auth-service, task-service, analytics-service]
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: geofoncier
+          POSTGRES_PASSWORD: geofoncier
+          POSTGRES_DB: geofoncier_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ${{ matrix.service }}/.venv
+          key: ${{ runner.os }}-poetry-${{ matrix.service }}-${{ hashFiles(format('{0}/poetry.lock', matrix.service)) }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-${{ matrix.service }}-
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.service }}
+        run: poetry install --with dev
+
+      - name: Run tests with coverage
+        working-directory: ${{ matrix.service }}
+        env:
+          DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@localhost/geofoncier_test
+          REDIS_URL: redis://localhost:6379
+        run: |
+          poetry run pytest \
+            --cov=app \
+            --cov-report=xml \
+            --tb=short \
+            -v || [ $? -eq 5 ]
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ${{ matrix.service }}/coverage.xml
+          flags: ${{ matrix.service }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

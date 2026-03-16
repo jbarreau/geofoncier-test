@@ -25,6 +25,7 @@ keys/
 
 # Coverage
 .coverage
+coverage.xml
 htmlcov/
 
 # Mypy
