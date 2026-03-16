@@ -42,3 +42,11 @@ other_allowed_tags = ["chore", "docs", "style", "test", "ci", "build", "revert"]
 [tool.semantic_release.publish]
 dist_glob_patterns = []
 upload_to_vcs_release = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/__init__.py"]
