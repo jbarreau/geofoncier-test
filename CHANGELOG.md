@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/jbarreau/geofoncier-test/compare/v1.1.0...v1.2.0) (2026-03-16)
+
+### Features
+
+* **task-service:** add SQLAlchemy models, Alembic migration, and CRUD endpoints ([#7](https://github.com/jbarreau/geofoncier-test/issues/7)) ([1bcb10b](https://github.com/jbarreau/geofoncier-test/commit/1bcb10b13d793df19c46322f08738e88fc490401))
+
 ## [1.1.0](https://github.com/jbarreau/geofoncier-test/compare/v1.0.0...v1.1.0) (2026-03-16)
 
 ### Features
