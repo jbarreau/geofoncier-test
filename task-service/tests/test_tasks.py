@@ -139,6 +139,195 @@ class TestTaskServiceCreate:
         assert history_entries[0].status == TaskStatus.doing
 
 
+class TestTaskServiceCreateFields:
+    async def test_create_sets_owner_and_title(self):
+        from app.schemas.task import TaskCreate
+        from app.services import task_service
+
+        db = AsyncMock()
+        owner_id = uuid.uuid4()
+        added_objects = []
+
+        def capture_add(obj):
+            added_objects.append(obj)
+            if isinstance(obj, Task):
+                obj.id = uuid.uuid4()
+                obj.created_at = datetime.now(timezone.utc)
+                obj.updated_at = datetime.now(timezone.utc)
+
+        db.add = capture_add
+        db.flush = AsyncMock()
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        data = TaskCreate(title="My task", description="Desc", status=TaskStatus.todo)
+        await task_service.create_task(db, data, owner_id)
+
+        tasks = [o for o in added_objects if isinstance(o, Task)]
+        assert len(tasks) == 1
+        assert tasks[0].title == "My task"
+        assert tasks[0].description == "Desc"
+        assert tasks[0].owner_id == owner_id
+        assert tasks[0].status == TaskStatus.todo
+
+    async def test_create_flush_before_history(self):
+        """flush must be called before the history row so task.id is set."""
+        from app.schemas.task import TaskCreate
+        from app.services import task_service
+
+        db = AsyncMock()
+        call_order = []
+
+        def capture_add(obj):
+            call_order.append(("add", type(obj).__name__))
+            if isinstance(obj, Task):
+                obj.id = uuid.uuid4()
+                obj.created_at = datetime.now(timezone.utc)
+                obj.updated_at = datetime.now(timezone.utc)
+
+        async def capture_flush():
+            call_order.append(("flush", None))
+
+        db.add = capture_add
+        db.flush = capture_flush
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        await task_service.create_task(db, TaskCreate(title="T"), uuid.uuid4())
+
+        add_task_idx = next(
+            i for i, (op, cls) in enumerate(call_order) if op == "add" and cls == "Task"
+        )
+        flush_idx = next(i for i, (op, _) in enumerate(call_order) if op == "flush")
+        add_history_idx = next(
+            i
+            for i, (op, cls) in enumerate(call_order)
+            if op == "add" and cls == "TaskStatusHistory"
+        )
+        assert add_task_idx < flush_idx < add_history_idx
+
+    async def test_create_due_date_propagated(self):
+        from datetime import date
+
+        from app.schemas.task import TaskCreate
+        from app.services import task_service
+
+        db = AsyncMock()
+        due = datetime(2026, 12, 31, tzinfo=timezone.utc)
+        added_objects = []
+
+        def capture_add(obj):
+            added_objects.append(obj)
+            if isinstance(obj, Task):
+                obj.id = uuid.uuid4()
+                obj.created_at = datetime.now(timezone.utc)
+                obj.updated_at = datetime.now(timezone.utc)
+
+        db.add = capture_add
+        db.flush = AsyncMock()
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        await task_service.create_task(
+            db, TaskCreate(title="T", due_date=due), uuid.uuid4()
+        )
+
+        tasks = [o for o in added_objects if isinstance(o, Task)]
+        assert tasks[0].due_date == due
+
+    async def test_create_commits_and_refreshes(self):
+        from app.schemas.task import TaskCreate
+        from app.services import task_service
+
+        db = AsyncMock()
+
+        def capture_add(obj):
+            if isinstance(obj, Task):
+                obj.id = uuid.uuid4()
+                obj.created_at = datetime.now(timezone.utc)
+                obj.updated_at = datetime.now(timezone.utc)
+
+        db.add = capture_add
+        db.flush = AsyncMock()
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        await task_service.create_task(db, TaskCreate(title="T"), uuid.uuid4())
+
+        db.commit.assert_awaited_once()
+        db.refresh.assert_awaited_once()
+
+
+class TestTaskServiceListTasks:
+    async def test_list_all_no_filter(self):
+        from app.services import task_service
+
+        db = AsyncMock()
+        tasks = [_make_task(), _make_task()]
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = tasks
+        db.execute = AsyncMock(return_value=mock_result)
+
+        result = await task_service.list_tasks(db)
+
+        assert result == tasks
+        db.execute.assert_awaited_once()
+
+    async def test_list_filters_by_owner(self):
+        from app.services import task_service
+
+        owner_id = uuid.uuid4()
+        db = AsyncMock()
+        owned = [_make_task(owner_id=owner_id)]
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = owned
+        db.execute = AsyncMock(return_value=mock_result)
+
+        result = await task_service.list_tasks(db, owner_id=owner_id)
+
+        assert result == owned
+        db.execute.assert_awaited_once()
+
+    async def test_list_returns_empty_list(self):
+        from app.services import task_service
+
+        db = AsyncMock()
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = []
+        db.execute = AsyncMock(return_value=mock_result)
+
+        result = await task_service.list_tasks(db)
+
+        assert result == []
+
+
+class TestTaskServiceGetTask:
+    async def test_get_existing_task(self):
+        from app.services import task_service
+
+        db = AsyncMock()
+        task = _make_task()
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none.return_value = task
+        db.execute = AsyncMock(return_value=mock_result)
+
+        result = await task_service.get_task(db, task.id)
+
+        assert result is task
+
+    async def test_get_missing_task_returns_none(self):
+        from app.services import task_service
+
+        db = AsyncMock()
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none.return_value = None
+        db.execute = AsyncMock(return_value=mock_result)
+
+        result = await task_service.get_task(db, uuid.uuid4())
+
+        assert result is None
+
+
 class TestTaskServiceUpdate:
     async def test_update_status_adds_history(self):
         from app.schemas.task import TaskUpdate
@@ -212,6 +401,118 @@ class TestTaskServiceUpdate:
 
         assert task.title == "Updated"
         assert task.status == TaskStatus.done
+
+    async def test_update_description(self):
+        from app.schemas.task import TaskUpdate
+        from app.services import task_service
+
+        db = AsyncMock()
+        task = _make_task()
+        task.description = "Old desc"
+
+        db.add = lambda obj: None
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        await task_service.update_task(db, task, TaskUpdate(description="New desc"))
+
+        assert task.description == "New desc"
+
+    async def test_update_due_date(self):
+        from app.schemas.task import TaskUpdate
+        from app.services import task_service
+
+        db = AsyncMock()
+        task = _make_task()
+        new_due = datetime(2027, 1, 1, tzinfo=timezone.utc)
+
+        db.add = lambda obj: None
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        await task_service.update_task(db, task, TaskUpdate(due_date=new_due))
+
+        assert task.due_date == new_due
+
+    async def test_update_none_fields_not_overwritten(self):
+        from app.schemas.task import TaskUpdate
+        from app.services import task_service
+
+        db = AsyncMock()
+        task = _make_task(status=TaskStatus.doing)
+        task.title = "Keep"
+        task.description = "Keep desc"
+
+        db.add = lambda obj: None
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        await task_service.update_task(db, task, TaskUpdate())
+
+        assert task.title == "Keep"
+        assert task.description == "Keep desc"
+        assert task.status == TaskStatus.doing
+
+    async def test_update_sets_updated_at(self):
+        from app.schemas.task import TaskUpdate
+        from app.services import task_service
+
+        db = AsyncMock()
+        task = _make_task()
+        original_updated_at = task.updated_at
+
+        db.add = lambda obj: None
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        await task_service.update_task(db, task, TaskUpdate(title="X"))
+
+        assert task.updated_at >= original_updated_at
+
+    async def test_update_commits_and_refreshes(self):
+        from app.schemas.task import TaskUpdate
+        from app.services import task_service
+
+        db = AsyncMock()
+        task = _make_task()
+        db.add = lambda obj: None
+        db.commit = AsyncMock()
+        db.refresh = AsyncMock()
+
+        await task_service.update_task(db, task, TaskUpdate(title="X"))
+
+        db.commit.assert_awaited_once()
+        db.refresh.assert_awaited_once()
+
+
+class TestTaskServiceDeleteTask:
+    async def test_delete_calls_db_delete_and_commit(self):
+        from app.services import task_service
+
+        db = AsyncMock()
+        task = _make_task()
+        db.delete = AsyncMock()
+        db.commit = AsyncMock()
+
+        await task_service.delete_task(db, task)
+
+        db.delete.assert_awaited_once_with(task)
+        db.commit.assert_awaited_once()
+
+    async def test_delete_correct_task_passed(self):
+        from app.services import task_service
+
+        db = AsyncMock()
+        task_a = _make_task()
+        task_b = _make_task()
+        db.delete = AsyncMock()
+        db.commit = AsyncMock()
+
+        await task_service.delete_task(db, task_a)
+
+        deleted = db.delete.call_args[0][0]
+        assert deleted is task_a
+        assert deleted is not task_b
 
 
 # ---------------------------------------------------------------------------
