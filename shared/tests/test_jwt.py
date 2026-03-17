@@ -9,7 +9,11 @@ from cryptography.hazmat.primitives.asymmetric import rsa as _rsa
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
-from geofoncier_shared.fastapi.jwt import CurrentUser, make_jwt_dependencies
+from geofoncier_shared.fastapi.middleware.jwt import (
+    get_current_user,
+    require_permission,
+)
+from geofoncier_shared.fastapi.schemas.auth import CurrentUser
 from geofoncier_shared.redis.redis_client import get_redis
 
 # ---------------------------------------------------------------------------
@@ -33,15 +37,12 @@ def _make_token(private_key: str, payload_overrides: dict | None = None) -> str:
     return jwt.encode(payload, private_key, algorithm="RS256")
 
 
-def _make_app(rsa_key_pair: dict, permission: str | None = None):
-    """Build a minimal FastAPI app with JWT dependencies wired up."""
-    get_current_user, require_permission = make_jwt_dependencies(
-        lambda: rsa_key_pair["public_key"]
-    )
-
-    app = FastAPI()
+def _make_app(permission: str | None = None):
+    """Build a minimal FastAPI app.  JWT_PUBLIC_KEY must be set in the environment."""
     mock_redis = AsyncMock()
     mock_redis.get = AsyncMock(return_value=None)
+
+    app = FastAPI()
     app.dependency_overrides[get_redis] = lambda: mock_redis
 
     if permission:
@@ -74,13 +75,18 @@ class TestCurrentUser:
 
 
 # ---------------------------------------------------------------------------
-# make_jwt_dependencies — get_current_user
+# get_current_user dependency
 # ---------------------------------------------------------------------------
 
 
 class TestGetCurrentUser:
+    @pytest.fixture(autouse=True)
+    def patch_jwt_env(self, rsa_key_pair, monkeypatch):
+        monkeypatch.setenv("JWT_PUBLIC_KEY", rsa_key_pair["public_key"])
+        monkeypatch.delenv("JWT_PUBLIC_KEY_PATH", raising=False)
+
     def test_valid_token(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair)
+        app, _ = _make_app()
         token = _make_token(rsa_key_pair["private_key"])
         with TestClient(app) as client:
             resp = client.get(
@@ -90,14 +96,14 @@ class TestGetCurrentUser:
         assert "user_id" in resp.json()
 
     def test_missing_authorization(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair)
+        app, _ = _make_app()
         with TestClient(app) as client:
             resp = client.get("/protected")
         assert resp.status_code == 401
         assert "Missing" in resp.json()["detail"]
 
     def test_expired_token(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair)
+        app, _ = _make_app()
         token = _make_token(
             rsa_key_pair["private_key"],
             {"exp": datetime.now(timezone.utc) - timedelta(seconds=1)},
@@ -116,7 +122,7 @@ class TestGetCurrentUser:
             format=serialization.PrivateFormat.TraditionalOpenSSL,
             encryption_algorithm=serialization.NoEncryption(),
         ).decode()
-        app, _ = _make_app(rsa_key_pair)
+        app, _ = _make_app()
         token = _make_token(other_private_pem)
         with TestClient(app) as client:
             resp = client.get(
@@ -126,7 +132,7 @@ class TestGetCurrentUser:
         assert "Invalid token" in resp.json()["detail"]
 
     def test_blacklisted_token(self, rsa_key_pair):
-        app, mock_redis = _make_app(rsa_key_pair)
+        app, mock_redis = _make_app()
         mock_redis.get = AsyncMock(return_value="1")
         token = _make_token(rsa_key_pair["private_key"])
         with TestClient(app) as client:
@@ -137,7 +143,7 @@ class TestGetCurrentUser:
         assert "revoked" in resp.json()["detail"].lower()
 
     def test_missing_sub_field(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair)
+        app, _ = _make_app()
         now = datetime.now(timezone.utc)
         payload = {
             "email": "x@x.com",
@@ -156,7 +162,7 @@ class TestGetCurrentUser:
         assert "Invalid token payload" in resp.json()["detail"]
 
     def test_invalid_uuid_in_sub(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair)
+        app, _ = _make_app()
         token = _make_token(rsa_key_pair["private_key"], {"sub": "not-a-uuid"})
         with TestClient(app) as client:
             resp = client.get(
@@ -167,7 +173,7 @@ class TestGetCurrentUser:
 
     def test_token_without_jti(self, rsa_key_pair):
         """Token without jti should be accepted (no blacklist check)."""
-        app, _ = _make_app(rsa_key_pair)
+        app, _ = _make_app()
         now = datetime.now(timezone.utc)
         payload = {
             "sub": str(uuid.uuid4()),
@@ -184,15 +190,28 @@ class TestGetCurrentUser:
             )
         assert resp.status_code == 200
 
+    def test_missing_public_key_raises(self, monkeypatch):
+        monkeypatch.delenv("JWT_PUBLIC_KEY", raising=False)
+        monkeypatch.delenv("JWT_PUBLIC_KEY_PATH", raising=False)
+        app, _ = _make_app()
+        with pytest.raises(ValueError, match="No JWT public key configured"):
+            with TestClient(app) as client:
+                client.get("/protected", headers={"Authorization": "Bearer x"})
+
 
 # ---------------------------------------------------------------------------
-# make_jwt_dependencies — require_permission
+# require_permission dependency
 # ---------------------------------------------------------------------------
 
 
 class TestRequirePermission:
+    @pytest.fixture(autouse=True)
+    def patch_jwt_env(self, rsa_key_pair, monkeypatch):
+        monkeypatch.setenv("JWT_PUBLIC_KEY", rsa_key_pair["public_key"])
+        monkeypatch.delenv("JWT_PUBLIC_KEY_PATH", raising=False)
+
     def test_has_permission(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair, permission="task:read")
+        app, _ = _make_app(permission="task:read")
         token = _make_token(rsa_key_pair["private_key"], {"permissions": ["task:read"]})
         with TestClient(app) as client:
             resp = client.get(
@@ -201,7 +220,7 @@ class TestRequirePermission:
         assert resp.status_code == 200
 
     def test_missing_permission(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair, permission="task:create")
+        app, _ = _make_app(permission="task:create")
         token = _make_token(rsa_key_pair["private_key"], {"permissions": ["task:read"]})
         with TestClient(app) as client:
             resp = client.get(
@@ -211,7 +230,7 @@ class TestRequirePermission:
         assert "task:create" in resp.json()["detail"]
 
     def test_multiple_permissions_sufficient(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair, permission="task:create")
+        app, _ = _make_app(permission="task:create")
         token = _make_token(
             rsa_key_pair["private_key"],
             {"permissions": ["task:read", "task:create", "task:delete"]},
@@ -223,7 +242,7 @@ class TestRequirePermission:
         assert resp.status_code == 200
 
     def test_no_permissions_in_token(self, rsa_key_pair):
-        app, _ = _make_app(rsa_key_pair, permission="task:create")
+        app, _ = _make_app(permission="task:create")
         token = _make_token(rsa_key_pair["private_key"], {"permissions": []})
         with TestClient(app) as client:
             resp = client.get(

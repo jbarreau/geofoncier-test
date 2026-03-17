@@ -1,7 +1,8 @@
-"""Tests for infrastructure modules: config, database, redis_client, middleware, main.
+"""Tests for infrastructure modules: database, middleware, main.
 
 Focuses on paths not exercised by test_analytics.py (shutdown hooks, singleton
-re-use, alternative config branches, invalid-payload edge cases …).
+re-use, invalid-payload edge cases …).
+Config and redis_client are tested in the shared package.
 """
 
 import uuid
@@ -13,7 +14,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
-from app.redis_client import get_redis
+from geofoncier_shared.redis.redis_client import get_redis
 
 # ---------------------------------------------------------------------------
 # Helpers (duplicated locally to keep tests self-contained)
@@ -42,77 +43,6 @@ def make_token(
 class FakeRedis:
     async def get(self, _key: str):
         return None
-
-
-# ---------------------------------------------------------------------------
-# config.py
-# ---------------------------------------------------------------------------
-
-
-class TestConfig:
-    def test_public_key_content_from_inline(self, rsa_key_pair, monkeypatch):
-        from app import config
-
-        monkeypatch.setattr(
-            config.settings, "jwt_public_key", rsa_key_pair["public_key"]
-        )
-        monkeypatch.setattr(config.settings, "jwt_public_key_path", "")
-        assert config.settings.public_key_content == rsa_key_pair["public_key"]
-
-    def test_public_key_content_from_file(self, rsa_key_pair, tmp_path, monkeypatch):
-        from app import config
-
-        key_file = tmp_path / "public.pem"
-        key_file.write_text(rsa_key_pair["public_key"])
-
-        monkeypatch.setattr(config.settings, "jwt_public_key", "")
-        monkeypatch.setattr(config.settings, "jwt_public_key_path", str(key_file))
-        assert config.settings.public_key_content == rsa_key_pair["public_key"]
-
-    def test_public_key_content_raises_when_not_configured(self, monkeypatch):
-        from app import config
-
-        monkeypatch.setattr(config.settings, "jwt_public_key", "")
-        monkeypatch.setattr(config.settings, "jwt_public_key_path", "")
-        with pytest.raises(ValueError, match="No JWT public key configured"):
-            _ = config.settings.public_key_content
-
-
-# ---------------------------------------------------------------------------
-# redis_client.py
-# ---------------------------------------------------------------------------
-
-
-class TestRedisClient:
-    async def test_get_redis_returns_singleton(self, monkeypatch):
-        import geofoncier_shared.redis.redis_client as rc
-
-        monkeypatch.setattr(rc, "_client", None)
-        fake = MagicMock()
-        with patch(
-            "geofoncier_shared.redis.redis_client.aioredis.from_url", return_value=fake
-        ):
-            r1 = await rc.get_redis()
-            r2 = await rc.get_redis()
-        assert r1 is r2 is fake
-        # Cleanup
-        monkeypatch.setattr(rc, "_client", None)
-
-    async def test_close_redis_closes_and_nones_client(self, monkeypatch):
-        import geofoncier_shared.redis.redis_client as rc
-
-        fake = AsyncMock()
-        monkeypatch.setattr(rc, "_client", fake)
-        await rc.close_redis()
-        fake.aclose.assert_awaited_once()
-        assert rc._client is None
-
-    async def test_close_redis_noop_when_no_client(self, monkeypatch):
-        import geofoncier_shared.redis.redis_client as rc
-
-        monkeypatch.setattr(rc, "_client", None)
-        # Should not raise
-        await rc.close_redis()
 
 
 # ---------------------------------------------------------------------------

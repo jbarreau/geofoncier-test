@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 
+from geofoncier_shared.redis.redis_client import close_redis, configure
+
 from .database import engine
-from .redis_client import close_redis, configure
 from .routes import tasks_router
 
 app = FastAPI(title="task-service")

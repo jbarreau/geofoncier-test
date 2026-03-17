@@ -4,8 +4,6 @@ pytest_plugins = ["geofoncier_shared.testing"]
 
 
 @pytest.fixture(autouse=True)
-def patch_settings(rsa_key_pair, monkeypatch):
-    from app import config
-
-    monkeypatch.setattr(config.settings, "jwt_public_key", rsa_key_pair["public_key"])
-    monkeypatch.setattr(config.settings, "jwt_public_key_path", "")
+def patch_jwt_env(rsa_key_pair, monkeypatch):
+    monkeypatch.setenv("JWT_PUBLIC_KEY", rsa_key_pair["public_key"])
+    monkeypatch.delenv("JWT_PUBLIC_KEY_PATH", raising=False)

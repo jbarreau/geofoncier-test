@@ -2,8 +2,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from geofoncier_shared.redis.redis_client import close_redis, configure
+
 from .database import close_db
-from .redis_client import close_redis, configure
 from .routes.analytics import router as analytics_router
 
 

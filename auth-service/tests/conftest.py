@@ -35,7 +35,7 @@ async def client(mock_db, mock_redis, patch_settings):
     """AsyncClient wired to the FastAPI app with DB and Redis dependencies mocked out."""
     from app.database import get_db
     from app.main import app
-    from app.redis_client import get_redis
+    from geofoncier_shared.redis.redis_client import get_redis
 
     async def _get_db():
         yield mock_db

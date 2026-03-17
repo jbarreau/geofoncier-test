@@ -10,9 +10,9 @@ from httpx import ASGITransport, AsyncClient
 
 from app.database import get_db
 from app.models.task import Task, TaskStatus, TaskStatusHistory
-from app.redis_client import get_redis
+from geofoncier_shared.redis.redis_client import get_redis
 from app.routes.tasks import router
-from app.schemas.auth import CurrentUser
+from geofoncier_shared.fastapi.schemas.auth import CurrentUser
 
 # ---------------------------------------------------------------------------
 # Helpers

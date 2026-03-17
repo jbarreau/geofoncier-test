@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from app.constants import PERM_ANALYTICS_READ
 from app.database import get_db
 from app.main import app
-from app.redis_client import get_redis
+from geofoncier_shared.redis.redis_client import get_redis
 
 from .helpers import BlacklistRedis, make_mock_db_scalars, make_token
 

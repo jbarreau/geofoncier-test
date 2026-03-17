@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..redis_client import get_redis
+from geofoncier_shared.redis.redis_client import get_redis
 from ..schemas import (
     LoginRequest,
     LogoutRequest,
