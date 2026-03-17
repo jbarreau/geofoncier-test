@@ -105,3 +105,59 @@ jobs:
           flags: ${{ matrix.service }}
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Start services via docker compose
+        run: docker compose up --build -d
+
+      - name: Wait for services to be healthy
+        run: |
+          for port in 8000 8001 8002; do
+            echo "Waiting for service on port $port..."
+            for i in $(seq 1 30); do
+              curl -sf "http://localhost:${port}/health" && break
+              echo "  attempt $i/30 — retrying in 5s"
+              sleep 5
+            done
+            curl -sf "http://localhost:${port}/health" || (echo "Service on $port not ready" && exit 1)
+          done
+
+      - name: Install e2e dependencies
+        working-directory: e2e
+        run: poetry install --no-root
+
+      - name: Run e2e tests
+        working-directory: e2e
+        env:
+          E2E_AUTH_URL: http://localhost:8000
+          E2E_TASK_URL: http://localhost:8001
+          E2E_ANALYTICS_URL: http://localhost:8002
+          E2E_DB_DSN: postgresql://geofoncier:geofoncier@localhost:5432/geofoncier
+        run: poetry run pytest -v
+
+      - name: Show docker compose logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

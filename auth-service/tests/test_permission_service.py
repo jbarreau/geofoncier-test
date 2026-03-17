@@ -19,13 +19,14 @@ from app.services.permission_service import (
     update_permission,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 
-def _make_permission(name: str = "tasks:read", description: str | None = None) -> MagicMock:
+def _make_permission(
+    name: str = "tasks:read", description: str | None = None
+) -> MagicMock:
     perm = MagicMock()
     perm.id = uuid.uuid4()
     perm.name = name

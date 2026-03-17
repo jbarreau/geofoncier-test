@@ -15,7 +15,6 @@ from app.dependencies import get_current_user_permissions
 from app.exceptions import PermissionNameConflictError, PermissionNotFoundError
 from app.main import app
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

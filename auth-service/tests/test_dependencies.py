@@ -13,7 +13,6 @@ from fastapi.security import HTTPAuthorizationCredentials
 from app.dependencies import get_current_user_permissions, require_permission
 from app.exceptions import InsufficientPermissionsError, InvalidTokenError
 
-
 # ---------------------------------------------------------------------------
 # get_current_user_permissions
 # ---------------------------------------------------------------------------
@@ -69,7 +68,11 @@ class TestRequirePermission:
     def test_permission_present_does_not_raise(self) -> None:
         checker = require_permission("users:manage")
         # Call the inner _check directly with injected permissions
-        result = checker.__wrapped__(["users:manage", "tasks:read"]) if hasattr(checker, "__wrapped__") else None
+        result = (
+            checker.__wrapped__(["users:manage", "tasks:read"])
+            if hasattr(checker, "__wrapped__")
+            else None
+        )
         # Call via closure — require_permission returns a function
         inner = require_permission("users:manage")
         # The returned callable is the inner _check function

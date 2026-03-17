@@ -14,9 +14,7 @@ async def list_permissions(db: AsyncSession) -> list[Permission]:
 
 
 async def get_permission(db: AsyncSession, permission_id: uuid.UUID) -> Permission:
-    result = await db.execute(
-        select(Permission).where(Permission.id == permission_id)
-    )
+    result = await db.execute(select(Permission).where(Permission.id == permission_id))
     perm = result.scalar_one_or_none()
     if perm is None:
         raise PermissionNotFoundError()
