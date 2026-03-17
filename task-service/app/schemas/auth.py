@@ -1,8 +1,3 @@
-import uuid
-from pydantic import BaseModel
+from geofoncier_shared.fastapi.jwt import CurrentUser
 
-
-class CurrentUser(BaseModel):
-    user_id: uuid.UUID
-    roles: list[str]
-    permissions: list[str]
+__all__ = ["CurrentUser"]

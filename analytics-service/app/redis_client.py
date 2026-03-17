@@ -1,19 +1,3 @@
-import redis.asyncio as aioredis
+from geofoncier_shared.redis.redis_client import close_redis, configure, get_redis
 
-from .config import settings
-
-_client: aioredis.Redis | None = None
-
-
-async def get_redis() -> aioredis.Redis:
-    global _client
-    if _client is None:
-        _client = aioredis.from_url(settings.redis_url, decode_responses=True)
-    return _client
-
-
-async def close_redis() -> None:
-    global _client
-    if _client:
-        await _client.aclose()
-        _client = None
+__all__ = ["close_redis", "configure", "get_redis"]
