@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/jbarreau/geofoncier-test/compare/v1.2.0...v1.3.0) (2026-03-17)
+
+### Features
+
+* **analytics:** implement read-only analytics endpoints ([#9](https://github.com/jbarreau/geofoncier-test/issues/9)) ([e4bb2d5](https://github.com/jbarreau/geofoncier-test/commit/e4bb2d555437877867887e6b27d64007d7b08ae4))
+
 ## [1.2.0](https://github.com/jbarreau/geofoncier-test/compare/v1.1.0...v1.2.0) (2026-03-16)
 
 ### Features
