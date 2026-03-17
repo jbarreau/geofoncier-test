@@ -6,14 +6,15 @@ JWT auth uses a real in-memory RSA key pair (see conftest.py).
 
 import uuid
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import jwt
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+from app.constants import PERM_ANALYTICS_ADMIN, PERM_ANALYTICS_READ
+from app.database import get_db
 from app.main import app
-from app.middleware.jwt import get_current_user
 from app.redis_client import get_redis
 
 # ---------------------------------------------------------------------------
@@ -59,14 +60,37 @@ def make_fake_task(
     return task
 
 
+def make_mock_db_scalars(results: list) -> AsyncMock:
+    """Mock DB whose execute() result is directly iterable (GROUP BY queries)."""
+    mock_result = MagicMock()
+    mock_result.__iter__ = MagicMock(return_value=iter(results))
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(return_value=mock_result)
+    return mock_db
+
+
+def make_mock_db_rows(results: list) -> AsyncMock:
+    """Mock DB whose execute().all() returns results (column-select queries)."""
+    mock_result = MagicMock()
+    mock_result.all = MagicMock(return_value=results)
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(return_value=mock_result)
+    return mock_db
+
+
 # ---------------------------------------------------------------------------
-# Fake Redis (no blacklist)
+# Fake Redis helpers
 # ---------------------------------------------------------------------------
 
 
 class FakeRedis:
     async def get(self, key: str):
         return None
+
+
+class BlacklistRedis:
+    async def get(self, key: str):
+        return "1"
 
 
 # ---------------------------------------------------------------------------
@@ -102,28 +126,21 @@ class TestSummary:
         assert resp.status_code == 403
 
     async def test_returns_counts_by_status(self, client, rsa_key_pair):
-        token = make_token(rsa_key_pair["private_key"], permissions=["analytics:read"])
-
+        token = make_token(
+            rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_READ]
+        )
         fake_rows = [
             MagicMock(status="todo", count=3),
             MagicMock(status="doing", count=1),
             MagicMock(status="done", count=5),
         ]
-        mock_result = MagicMock()
-        mock_result.__iter__ = MagicMock(return_value=iter(fake_rows))
+        mock_db = make_mock_db_scalars(fake_rows)
 
-        mock_db = AsyncMock()
-        mock_db.execute = AsyncMock(return_value=mock_result)
-
-        with patch("app.routes.analytics.get_db", return_value=mock_db):
-            from app.database import get_db
-
-            app.dependency_overrides[get_db] = lambda: mock_db
-            resp = await client.get(
-                "/analytics/summary",
-                headers={"Authorization": f"Bearer {token}"},
-            )
-
+        app.dependency_overrides[get_db] = lambda: mock_db
+        resp = await client.get(
+            "/analytics/summary",
+            headers={"Authorization": f"Bearer {token}"},
+        )
         app.dependency_overrides.pop(get_db, None)
 
         assert resp.status_code == 200
@@ -137,7 +154,7 @@ class TestSummary:
     async def test_expired_token_returns_401(self, client, rsa_key_pair):
         token = make_token(
             rsa_key_pair["private_key"],
-            permissions=["analytics:read"],
+            permissions=[PERM_ANALYTICS_READ],
             expired=True,
         )
         resp = await client.get(
@@ -146,23 +163,15 @@ class TestSummary:
         assert resp.status_code == 401
         assert resp.json()["detail"] == "Token has expired"
 
-    async def test_blacklisted_token_returns_401(self, rsa_key_pair):
-        token = make_token(rsa_key_pair["private_key"], permissions=["analytics:read"])
-
-        class BlacklistRedis:
-            async def get(self, key: str):
-                return "1"
-
+    async def test_blacklisted_token_returns_401(self, client, rsa_key_pair):
+        token = make_token(
+            rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_READ]
+        )
         app.dependency_overrides[get_redis] = lambda: BlacklistRedis()
-        async with AsyncClient(
-            transport=ASGITransport(app=app), base_url="http://test"
-        ) as ac:
-            resp = await ac.get(
-                "/analytics/summary",
-                headers={"Authorization": f"Bearer {token}"},
-            )
-        app.dependency_overrides.clear()
-
+        resp = await client.get(
+            "/analytics/summary",
+            headers={"Authorization": f"Bearer {token}"},
+        )
         assert resp.status_code == 401
         assert resp.json()["detail"] == "Token has been revoked"
 
@@ -185,21 +194,15 @@ class TestOverdue:
         assert resp.status_code == 403
 
     async def test_returns_overdue_tasks(self, client, rsa_key_pair):
-        token = make_token(rsa_key_pair["private_key"], permissions=["analytics:read"])
+        token = make_token(
+            rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_READ]
+        )
         past = datetime.now(timezone.utc) - timedelta(days=2)
         tasks = [
             make_fake_task(status="todo", due_date=past),
             make_fake_task(status="doing", due_date=past),
         ]
-        mock_scalars = MagicMock()
-        mock_scalars.all = MagicMock(return_value=tasks)
-        mock_result = MagicMock()
-        mock_result.scalars = MagicMock(return_value=mock_scalars)
-
-        mock_db = AsyncMock()
-        mock_db.execute = AsyncMock(return_value=mock_result)
-
-        from app.database import get_db
+        mock_db = make_mock_db_rows(tasks)
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
@@ -214,16 +217,10 @@ class TestOverdue:
         assert len(data["tasks"]) == 2
 
     async def test_empty_when_no_overdue(self, client, rsa_key_pair):
-        token = make_token(rsa_key_pair["private_key"], permissions=["analytics:read"])
-        mock_scalars = MagicMock()
-        mock_scalars.all = MagicMock(return_value=[])
-        mock_result = MagicMock()
-        mock_result.scalars = MagicMock(return_value=mock_scalars)
-
-        mock_db = AsyncMock()
-        mock_db.execute = AsyncMock(return_value=mock_result)
-
-        from app.database import get_db
+        token = make_token(
+            rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_READ]
+        )
+        mock_db = make_mock_db_rows([])
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
@@ -234,6 +231,34 @@ class TestOverdue:
 
         assert resp.status_code == 200
         assert resp.json() == {"count": 0, "tasks": []}
+
+    async def test_custom_limit_accepted(self, client, rsa_key_pair):
+        token = make_token(
+            rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_READ]
+        )
+        mock_db = make_mock_db_rows([])
+
+        app.dependency_overrides[get_db] = lambda: mock_db
+        resp = await client.get(
+            "/analytics/overdue?limit=10",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        app.dependency_overrides.pop(get_db, None)
+
+        assert resp.status_code == 200
+
+    async def test_limit_above_max_returns_422(self, client, rsa_key_pair):
+        token = make_token(
+            rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_READ]
+        )
+        # get_db is overridden so FastAPI can reach param validation cleanly
+        app.dependency_overrides[get_db] = lambda: make_mock_db_rows([])
+        resp = await client.get(
+            "/analytics/overdue?limit=9999",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        app.dependency_overrides.pop(get_db, None)
+        assert resp.status_code == 422
 
 
 # ---------------------------------------------------------------------------
@@ -247,26 +272,24 @@ class TestByUser:
         assert resp.status_code == 401
 
     async def test_analytics_read_not_enough(self, client, rsa_key_pair):
-        """analytics:read is insufficient — admin only."""
-        token = make_token(rsa_key_pair["private_key"], permissions=["analytics:read"])
+        """analytics:read is insufficient - admin only."""
+        token = make_token(
+            rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_READ]
+        )
         resp = await client.get(
             "/analytics/by-user", headers={"Authorization": f"Bearer {token}"}
         )
         assert resp.status_code == 403
 
     async def test_admin_returns_counts_by_user(self, client, rsa_key_pair):
-        token = make_token(rsa_key_pair["private_key"], permissions=["analytics:admin"])
+        token = make_token(
+            rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_ADMIN]
+        )
         fake_rows = [
             MagicMock(owner_id=OWNER_A, count=4),
             MagicMock(owner_id=OWNER_B, count=2),
         ]
-        mock_result = MagicMock()
-        mock_result.__iter__ = MagicMock(return_value=iter(fake_rows))
-
-        mock_db = AsyncMock()
-        mock_db.execute = AsyncMock(return_value=mock_result)
-
-        from app.database import get_db
+        mock_db = make_mock_db_scalars(fake_rows)
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
@@ -284,18 +307,12 @@ class TestByUser:
     async def test_analytics_admin_also_passes_permission_check(
         self, client, rsa_key_pair
     ):
-        """Sanity: having analytics:admin (but not analytics:read) is enough for by-user."""
+        """Sanity: analytics:admin alone (without analytics:read) is enough for by-user."""
         token = make_token(
             rsa_key_pair["private_key"],
-            permissions=["analytics:admin"],
+            permissions=[PERM_ANALYTICS_ADMIN],
         )
-        mock_result = MagicMock()
-        mock_result.__iter__ = MagicMock(return_value=iter([]))
-
-        mock_db = AsyncMock()
-        mock_db.execute = AsyncMock(return_value=mock_result)
-
-        from app.database import get_db
+        mock_db = make_mock_db_scalars([])
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
