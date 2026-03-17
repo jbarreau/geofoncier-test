@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
-from .redis_client import close_redis
+from geofoncier_shared.redis.redis_client import close_redis, configure
+
 from .routes import auth_router, permissions_router, roles_router, users_router
 
 app = FastAPI(title="auth-service")
@@ -10,6 +11,7 @@ app = FastAPI(title="auth-service")
 async def startup() -> None:
     from .config import settings
 
+    configure(settings.redis_url)
     # Fail fast at startup if JWT keys are not configured
     _ = settings.private_key_content
     _ = settings.public_key_content
