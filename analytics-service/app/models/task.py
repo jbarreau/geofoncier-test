@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import UUID, DateTime, func
+from sqlalchemy import UUID, DateTime, String, func
 from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
