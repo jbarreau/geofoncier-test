@@ -21,78 +21,55 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.execute("CREATE SCHEMA IF NOT EXISTS tasks")
 
-    op.execute("CREATE TYPE tasks.taskstatus AS ENUM ('todo', 'doing', 'done')")
+    # CREATE TYPE IF NOT EXISTS is not supported in PostgreSQL; use a DO block.
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE tasks.taskstatus AS ENUM ('todo', 'doing', 'done');
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$
+    """)
 
-    op.create_table(
-        "tasks",
-        sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("title", sa.String(length=255), nullable=False),
-        sa.Column("description", sa.Text(), nullable=True),
-        sa.Column(
-            "status",
-            sa.Enum("todo", "doing", "done", name="taskstatus", schema="tasks"),
-            nullable=False,
-        ),
-        sa.Column("owner_id", sa.UUID(), nullable=False),
-        sa.Column("due_date", sa.DateTime(timezone=True), nullable=True),
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
-        sa.Column(
-            "updated_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
-        sa.PrimaryKeyConstraint("id"),
-        schema="tasks",
-    )
-    op.create_index(
-        op.f("ix_tasks_tasks_owner_id"),
-        "tasks",
-        ["owner_id"],
-        unique=False,
-        schema="tasks",
-    )
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS tasks.tasks (
+            id          UUID                  NOT NULL,
+            title       VARCHAR(255)          NOT NULL,
+            description TEXT,
+            status      tasks.taskstatus      NOT NULL,
+            owner_id    UUID                  NOT NULL,
+            due_date    TIMESTAMPTZ,
+            created_at  TIMESTAMPTZ           NOT NULL DEFAULT now(),
+            updated_at  TIMESTAMPTZ           NOT NULL DEFAULT now(),
+            PRIMARY KEY (id)
+        )
+    """)
+    op.execute("""
+        CREATE INDEX IF NOT EXISTS ix_tasks_tasks_owner_id
+        ON tasks.tasks (owner_id)
+    """)
 
-    op.create_table(
-        "task_assignments",
-        sa.Column("task_id", sa.UUID(), nullable=False),
-        sa.Column("user_id", sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(["task_id"], ["tasks.tasks.id"], ondelete="CASCADE"),
-        sa.PrimaryKeyConstraint("task_id", "user_id"),
-        schema="tasks",
-    )
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS tasks.task_assignments (
+            task_id UUID NOT NULL,
+            user_id UUID NOT NULL,
+            PRIMARY KEY (task_id, user_id),
+            FOREIGN KEY (task_id) REFERENCES tasks.tasks (id) ON DELETE CASCADE
+        )
+    """)
 
-    op.create_table(
-        "task_status_history",
-        sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("task_id", sa.UUID(), nullable=False),
-        sa.Column(
-            "status",
-            sa.Enum("todo", "doing", "done", name="taskstatus", schema="tasks"),
-            nullable=False,
-        ),
-        sa.Column(
-            "changed_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
-        sa.ForeignKeyConstraint(["task_id"], ["tasks.tasks.id"], ondelete="CASCADE"),
-        sa.PrimaryKeyConstraint("id"),
-        schema="tasks",
-    )
-    op.create_index(
-        op.f("ix_tasks_task_status_history_task_id"),
-        "task_status_history",
-        ["task_id"],
-        unique=False,
-        schema="tasks",
-    )
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS tasks.task_status_history (
+            id         UUID             NOT NULL,
+            task_id    UUID             NOT NULL,
+            status     tasks.taskstatus NOT NULL,
+            changed_at TIMESTAMPTZ      NOT NULL DEFAULT now(),
+            PRIMARY KEY (id),
+            FOREIGN KEY (task_id) REFERENCES tasks.tasks (id) ON DELETE CASCADE
+        )
+    """)
+    op.execute("""
+        CREATE INDEX IF NOT EXISTS ix_tasks_task_status_history_task_id
+        ON tasks.task_status_history (task_id)
+    """)
 
 
 def downgrade() -> None:
