@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "geofoncier-shared"
+version = "0.1.0"
+description = "Geofoncier – shared utilities across services"
+authors = []
+packages = [{ include = "geofoncier_shared" }]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+redis = { version = ">=5.0", extras = ["hiredis"] }
+pydantic-settings = ">=2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.0"
+cryptography = ">=42.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
