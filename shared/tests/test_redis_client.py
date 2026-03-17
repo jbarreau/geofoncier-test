@@ -33,9 +33,7 @@ class TestGetRedis:
         rc._client = None
         rc._redis_url = "redis://localhost:6379"
         mock_client = MagicMock()
-        with patch(
-            "redis.asyncio.from_url", return_value=mock_client
-        ) as mock_from_url:
+        with patch("redis.asyncio.from_url", return_value=mock_client) as mock_from_url:
             client = await rc.get_redis()
         mock_from_url.assert_called_once_with(
             "redis://localhost:6379", decode_responses=True
@@ -56,9 +54,7 @@ class TestGetRedis:
         rc._client = None
         rc.configure("redis://custom:9999")
         mock_client = MagicMock()
-        with patch(
-            "redis.asyncio.from_url", return_value=mock_client
-        ) as mock_from_url:
+        with patch("redis.asyncio.from_url", return_value=mock_client) as mock_from_url:
             await rc.get_redis()
         mock_from_url.assert_called_once_with(
             "redis://custom:9999", decode_responses=True
