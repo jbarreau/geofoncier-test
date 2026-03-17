@@ -7,6 +7,64 @@ on:
     branches: [main]
 
 jobs:
+  test-shared:
+    name: Test shared
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Poetry installation
+        uses: actions/cache@v4
+        with:
+          path: ~/.local
+          key: ${{ runner.os }}-poetry-${{ hashFiles('.github/workflows/ci.yml') }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: shared/.venv
+          key: ${{ runner.os }}-venv-shared-${{ hashFiles('shared/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-venv-shared-
+
+      - name: Install dependencies
+        working-directory: shared
+        run: poetry install --with dev
+
+      - name: Format check (black)
+        working-directory: shared
+        run: poetry run black --check .
+
+      - name: Run tests with coverage
+        working-directory: shared
+        run: |
+          poetry run pytest \
+            --cov=geofoncier_shared \
+            --cov-report=xml \
+            --tb=short \
+            -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: shared/coverage.xml
+          flags: shared
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
   test:
     name: Test ${{ matrix.service }}
     runs-on: ubuntu-latest
