@@ -122,6 +122,17 @@ services:
       redis:
         condition: service_healthy
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./openapi:/usr/share/nginx/openapi:ro
+    depends_on:
+      - auth-service
+      - task-service
+      - analytics-service
+
   # Optional: insert ~20 fake users for development.
   # Run once after the stack is up:
   #   docker compose --profile mock run --rm mock-data
