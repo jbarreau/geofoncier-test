@@ -1,4 +1,4 @@
-from geofoncier_shared.config_mixin import PublicKeyMixin
+from geofoncier_shared.fastapi.config_mixin import PublicKeyMixin
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
