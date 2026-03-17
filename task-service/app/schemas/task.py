@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
-from ..models.task import TaskStatus
+from app.models.task import TaskStatus
 
 
 class TaskCreate(BaseModel):

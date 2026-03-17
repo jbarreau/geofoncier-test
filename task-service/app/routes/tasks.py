@@ -3,11 +3,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..database import get_db
+from app.database import get_db
+from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
+from app.services import task_service
 from geofoncier_shared.fastapi.middleware.jwt import require_permission
 from geofoncier_shared.fastapi.schemas.auth import CurrentUser
-from ..schemas.task import TaskCreate, TaskResponse, TaskUpdate
-from ..services import task_service
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 

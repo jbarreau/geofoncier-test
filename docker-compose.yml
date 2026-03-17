@@ -62,7 +62,9 @@ services:
 
   # Runs Alembic migrations for task-service (idempotent).
   migrate-tasks:
-    build: ./task-service
+    build:
+      context: .
+      dockerfile: task-service/Dockerfile
     command: alembic upgrade head
     environment:
       DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier

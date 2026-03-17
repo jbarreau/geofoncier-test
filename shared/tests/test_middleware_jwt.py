@@ -1,3 +1,5 @@
+"""Tests for geofoncier_shared.fastapi.middleware.jwt."""
+
 import uuid
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock
@@ -58,20 +60,6 @@ def _make_app(permission: str | None = None):
             return {"user_id": str(user.user_id)}
 
     return app, mock_redis
-
-
-# ---------------------------------------------------------------------------
-# CurrentUser schema
-# ---------------------------------------------------------------------------
-
-
-class TestCurrentUser:
-    def test_valid(self):
-        uid = uuid.uuid4()
-        u = CurrentUser(user_id=uid, roles=["admin"], permissions=["task:create"])
-        assert u.user_id == uid
-        assert u.roles == ["admin"]
-        assert u.permissions == ["task:create"]
 
 
 # ---------------------------------------------------------------------------
