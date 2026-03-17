@@ -8,8 +8,8 @@ export interface TokenResponse {
 
 export const authApi = {
   login: (email: string, password: string) =>
-    api.post<TokenResponse>('/auth/login', { email, password }),
+    api.post<TokenResponse>('/api/auth/login', { email, password }),
 
   logout: (access_token: string, refresh_token: string) =>
-    api.post<void>('/auth/logout', { access_token, refresh_token }),
+    api.post<void>('/api/auth/logout', { access_token, refresh_token }),
 }

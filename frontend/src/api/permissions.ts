@@ -1,6 +1,6 @@
 import { useAuthStore } from '../stores/auth'
 
-const BASE = '/permissions'
+const BASE = '/api/permissions'
 
 export interface Permission {
   id: string
