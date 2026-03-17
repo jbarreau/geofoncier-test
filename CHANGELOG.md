@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/jbarreau/geofoncier-test/compare/v1.3.0...v1.4.0) (2026-03-17)
+
+### Features
+
+* **frontend:** add Vue 3 shell with nginx reverse proxy ([#14](https://github.com/jbarreau/geofoncier-test/issues/14)) ([17d0b14](https://github.com/jbarreau/geofoncier-test/commit/17d0b14f22df0bea821f257443d3bcf9708f4b0d))
+
 ## [1.3.0](https://github.com/jbarreau/geofoncier-test/compare/v1.2.0...v1.3.0) (2026-03-17)
 
 ### Features
