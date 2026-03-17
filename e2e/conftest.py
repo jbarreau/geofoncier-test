@@ -93,7 +93,7 @@ async def registered_users(
     users: dict[str, dict] = {}
 
     for key, extra_roles in role_extra.items():
-        email = f"e2e_{key}_{RUN_ID}@test.local"
+        email = f"e2e_{key}_{RUN_ID}@example.com"
         resp = await auth_client.post(
             "/auth/register",
             json={"email": email, "password": TEST_PASSWORD},

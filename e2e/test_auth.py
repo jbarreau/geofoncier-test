@@ -12,7 +12,7 @@ import pytest
 
 
 def _unique_email(label: str) -> str:
-    return f"e2e_{label}_{uuid.uuid4().hex[:8]}@test.local"
+    return f"e2e_{label}_{uuid.uuid4().hex[:8]}@example.com"
 
 
 PASSWORD = "TestPass123!"
@@ -28,7 +28,7 @@ class TestRegister:
         body = resp.json()
         assert body["is_active"] is True
         assert "id" in body
-        assert "@test.local" in body["email"]
+        assert "@example.com" in body["email"]
 
     async def test_register_duplicate_email_returns_409(
         self, auth_client: httpx.AsyncClient

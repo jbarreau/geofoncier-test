@@ -67,7 +67,7 @@ class TestLogoutRevokesTokenAcrossServices:
         self, auth_client: httpx.AsyncClient
     ) -> dict:
         """Helper: create a fresh user and return tokens."""
-        email = f"e2e_revoke_{uuid.uuid4().hex[:8]}@test.local"
+        email = f"e2e_revoke_{uuid.uuid4().hex[:8]}@example.com"
         reg = await auth_client.post(
             "/auth/register",
             json={"email": email, "password": "TestPass123!"},
@@ -128,7 +128,7 @@ class TestLogoutRevokesTokenAcrossServices:
         # Login with the session viewer user for a fresh token pair
         from conftest import RUN_ID, TEST_PASSWORD
 
-        viewer_email = f"e2e_viewer_{RUN_ID}@test.local"
+        viewer_email = f"e2e_viewer_{RUN_ID}@example.com"
         login = await auth_client.post(
             "/auth/login",
             json={"email": viewer_email, "password": TEST_PASSWORD},
