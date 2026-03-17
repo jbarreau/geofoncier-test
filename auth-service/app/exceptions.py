@@ -33,3 +33,36 @@ class InvalidRefreshTokenError(HTTPException):
             detail="Invalid or expired refresh token.",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+class InvalidTokenError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing authentication token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+class InsufficientPermissionsError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions.",
+        )
+
+
+class PermissionNotFoundError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Permission not found.",
+        )
+
+
+class PermissionNameConflictError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A permission with this name already exists.",
+        )

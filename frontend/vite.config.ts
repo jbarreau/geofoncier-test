@@ -26,6 +26,10 @@ export default defineConfig({
         target: 'http://localhost:8002',
         changeOrigin: true,
       },
+      '/permissions': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
     },
   },
 })

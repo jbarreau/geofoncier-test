@@ -18,3 +18,13 @@ class RefreshRequest(BaseModel):
 class LogoutRequest(BaseModel):
     access_token: str
     refresh_token: str
+
+
+class CreatePermissionRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=500)
+
+
+class UpdatePermissionRequest(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=500)
