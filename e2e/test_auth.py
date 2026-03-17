@@ -95,7 +95,7 @@ class TestLogin:
     ) -> None:
         resp = await auth_client.post(
             "/auth/login",
-            json={"email": "nobody@nowhere.invalid", "password": PASSWORD},
+            json={"email": "nobody@example.com", "password": PASSWORD},
         )
         assert resp.status_code == 401
 

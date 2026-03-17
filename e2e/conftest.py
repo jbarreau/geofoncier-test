@@ -118,6 +118,18 @@ async def registered_users(
                 role_id,
             )
 
+        # The "user" fixture must not have analytics:read (carried by viewer).
+        # Remove the auto-assigned viewer role so only the "user" role applies.
+        if key == "user":
+            viewer_role_id = await db_conn.fetchval(
+                "SELECT id FROM auth.roles WHERE name = 'viewer'"
+            )
+            await db_conn.execute(
+                "DELETE FROM auth.user_roles WHERE user_id = $1 AND role_id = $2",
+                users[key]["id"],
+                viewer_role_id,
+            )
+
     return users
 
 
