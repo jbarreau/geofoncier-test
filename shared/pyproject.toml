@@ -28,3 +28,6 @@ testpaths = ["tests"]
 [tool.coverage.run]
 source = ["geofoncier_shared"]
 omit = ["geofoncier_shared/__init__.py"]
+
+[tool.black]
+target-version = ["py312"]

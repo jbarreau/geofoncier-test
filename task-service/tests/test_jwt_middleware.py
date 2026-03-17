@@ -104,14 +104,14 @@ class TestRedisClient:
     @pytest.fixture(autouse=True)
     async def reset_redis(self):
         """Ensure _client is None before and after each test."""
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         rc._client = None
         yield
         rc._client = None
 
     async def test_get_redis_creates_client(self):
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         mock_client = MagicMock()
         with patch("redis.asyncio.from_url", return_value=mock_client) as mock_from_url:
@@ -120,7 +120,7 @@ class TestRedisClient:
             mock_from_url.assert_called_once()
 
     async def test_get_redis_singleton(self):
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         mock_client = MagicMock()
         with patch("redis.asyncio.from_url", return_value=mock_client):
@@ -129,7 +129,7 @@ class TestRedisClient:
             assert c1 is c2
 
     async def test_close_redis(self):
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         mock_client = AsyncMock()
         rc._client = mock_client
@@ -138,7 +138,7 @@ class TestRedisClient:
         assert rc._client is None
 
     async def test_close_redis_noop_when_none(self):
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         rc._client = None
         await rc.close_redis()  # Should not raise
@@ -328,7 +328,7 @@ class TestMain:
         assert resp.json() == {"status": "ok"}
 
     async def test_shutdown_closes_redis(self):
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         mock_client = AsyncMock()
         rc._client = mock_client
