@@ -126,6 +126,8 @@ services:
     build: ./frontend
     ports:
       - "80:80"
+    volumes:
+      - ./openapi:/usr/share/nginx/openapi:ro
     depends_on:
       - auth-service
       - task-service
