@@ -1,12 +1,16 @@
-from .requests import (
-    CreatePermissionRequest,
+from .auth import (
     LoginRequest,
     LogoutRequest,
     RefreshRequest,
     RegisterRequest,
+    TokenResponse,
+    UserResponse,
+)
+from .permissions import (
+    CreatePermissionRequest,
+    PermissionResponse,
     UpdatePermissionRequest,
 )
-from .responses import PermissionResponse, TokenResponse, UserResponse
 
 __all__ = [
     "CreatePermissionRequest",
