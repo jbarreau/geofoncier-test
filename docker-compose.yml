@@ -58,6 +58,16 @@ services:
       keygen:
         condition: service_completed_successfully
 
+  # Runs Alembic migrations for task-service (idempotent).
+  migrate-tasks:
+    build: ./task-service
+    command: alembic upgrade head
+    environment:
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
   # Inserts default roles, permissions, and three seed users (idempotent).
   # Default credentials: see scripts/seed.py or README.
   seed:
@@ -68,7 +78,7 @@ services:
     volumes:
       - ./scripts:/scripts
     depends_on:
-      migrate:
+      migrate-tasks:
         condition: service_completed_successfully
 
   auth-service:
