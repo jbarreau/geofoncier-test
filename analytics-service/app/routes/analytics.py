@@ -1,8 +1,6 @@
-import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,41 +8,17 @@ from ..constants import PERM_ANALYTICS_ADMIN, PERM_ANALYTICS_READ, TASK_STATUS_D
 from ..database import get_db
 from ..middleware.jwt import require_permission
 from ..models.task import Task
+from ..schemas.analytics import (
+    ByUserResponse,
+    OverdueResponse,
+    OverdueTask,
+    StatusCount,
+    SummaryResponse,
+    UserTaskCount,
+)
 from ..schemas.auth import CurrentUser
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
-
-
-class StatusCount(BaseModel):
-    status: str
-    count: int
-
-
-class SummaryResponse(BaseModel):
-    total: int
-    by_status: list[StatusCount]
-
-
-class OverdueTask(BaseModel):
-    id: uuid.UUID
-    title: str
-    status: str
-    owner_id: uuid.UUID
-    due_date: datetime
-
-
-class OverdueResponse(BaseModel):
-    count: int
-    tasks: list[OverdueTask]
-
-
-class UserTaskCount(BaseModel):
-    owner_id: uuid.UUID
-    count: int
-
-
-class ByUserResponse(BaseModel):
-    by_user: list[UserTaskCount]
 
 
 @router.get("/summary", response_model=SummaryResponse)

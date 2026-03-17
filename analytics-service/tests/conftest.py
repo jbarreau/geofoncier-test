@@ -1,6 +1,12 @@
 import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from httpx import ASGITransport, AsyncClient
+
+from app.main import app
+from app.redis_client import get_redis
+
+from .helpers import FakeRedis
 
 
 @pytest.fixture(scope="session")
@@ -28,3 +34,13 @@ def patch_settings(rsa_key_pair, monkeypatch):
 
     monkeypatch.setattr(config.settings, "jwt_public_key", rsa_key_pair["public_key"])
     monkeypatch.setattr(config.settings, "jwt_public_key_path", "")
+
+
+@pytest.fixture
+async def client():
+    app.dependency_overrides[get_redis] = lambda: FakeRedis()
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        yield ac
+    app.dependency_overrides.clear()
