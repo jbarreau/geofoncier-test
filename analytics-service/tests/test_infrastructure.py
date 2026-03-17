@@ -85,11 +85,13 @@ class TestConfig:
 
 class TestRedisClient:
     async def test_get_redis_returns_singleton(self, monkeypatch):
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         monkeypatch.setattr(rc, "_client", None)
         fake = MagicMock()
-        with patch("app.redis_client.aioredis.from_url", return_value=fake):
+        with patch(
+            "geofoncier_shared.redis.redis_client.aioredis.from_url", return_value=fake
+        ):
             r1 = await rc.get_redis()
             r2 = await rc.get_redis()
         assert r1 is r2 is fake
@@ -97,7 +99,7 @@ class TestRedisClient:
         monkeypatch.setattr(rc, "_client", None)
 
     async def test_close_redis_closes_and_nones_client(self, monkeypatch):
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         fake = AsyncMock()
         monkeypatch.setattr(rc, "_client", fake)
@@ -106,7 +108,7 @@ class TestRedisClient:
         assert rc._client is None
 
     async def test_close_redis_noop_when_no_client(self, monkeypatch):
-        import app.redis_client as rc
+        import geofoncier_shared.redis.redis_client as rc
 
         monkeypatch.setattr(rc, "_client", None)
         # Should not raise

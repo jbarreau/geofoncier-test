@@ -12,7 +12,6 @@ from fastapi.testclient import TestClient
 from geofoncier_shared.fastapi.jwt import CurrentUser, make_jwt_dependencies
 from geofoncier_shared.redis.redis_client import get_redis
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
