@@ -1,12 +1,20 @@
 from fastapi import FastAPI
 
+from geofoncier_shared.redis.redis_client import close_redis, configure
+
 from .database import engine
-from .redis_client import close_redis
 from .routes import tasks_router
 
 app = FastAPI(title="task-service")
 
 app.include_router(tasks_router)
+
+
+@app.on_event("startup")
+async def startup() -> None:
+    from .config import settings
+
+    configure(settings.redis_url)
 
 
 @app.on_event("shutdown")

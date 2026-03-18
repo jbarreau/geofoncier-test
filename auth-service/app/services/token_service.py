@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
-from ..config import settings
+from app.config import settings
 
 
 def _bcrypt_safe(value: str) -> bytes:

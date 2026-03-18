@@ -3,10 +3,10 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..database import get_db
-from ..dependencies import require_permission
-from ..schemas import CreateRoleRequest, RoleResponse, UpdateRoleRequest
-from ..services.role_service import (
+from app.database import get_db
+from app.dependencies import require_permission
+from app.schemas import CreateRoleRequest, RoleResponse, UpdateRoleRequest
+from app.services.role_service import (
     assign_permission_to_role,
     create_role,
     delete_role,

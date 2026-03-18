@@ -44,7 +44,9 @@ services:
 
   # Runs Alembic migrations for auth-service (idempotent).
   migrate:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
     command: alembic upgrade head
     environment:
       DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
@@ -60,7 +62,9 @@ services:
 
   # Runs Alembic migrations for task-service (idempotent).
   migrate-tasks:
-    build: ./task-service
+    build:
+      context: .
+      dockerfile: task-service/Dockerfile
     command: alembic upgrade head
     environment:
       DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
@@ -71,7 +75,9 @@ services:
   # Inserts default roles, permissions, and three seed users (idempotent).
   # Default credentials: see scripts/seed.py or README.
   seed:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
     command: python /scripts/seed.py
     environment:
       DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
@@ -82,7 +88,9 @@ services:
         condition: service_completed_successfully
 
   auth-service:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
     ports:
       - "8000:8000"
     environment:
@@ -99,7 +107,9 @@ services:
         condition: service_healthy
 
   task-service:
-    build: ./task-service
+    build:
+      context: .
+      dockerfile: task-service/Dockerfile
     ports:
       - "8001:8001"
     environment:
@@ -116,7 +126,9 @@ services:
         condition: service_healthy
 
   analytics-service:
-    build: ./analytics-service
+    build:
+      context: .
+      dockerfile: analytics-service/Dockerfile
     ports:
       - "8002:8002"
     environment:
@@ -147,7 +159,9 @@ services:
   # Run once after the stack is up:
   #   docker compose --profile mock run --rm mock-data
   mock-data:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
     profiles:
       - mock
     command: python /scripts/mock_data.py

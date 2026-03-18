@@ -4,11 +4,10 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..constants import PERM_ANALYTICS_ADMIN, PERM_ANALYTICS_READ, TASK_STATUS_DONE
-from ..database import get_db
-from ..middleware.jwt import require_permission
-from ..models.task import Task
-from ..schemas.analytics import (
+from app.constants import PERM_ANALYTICS_ADMIN, PERM_ANALYTICS_READ, TASK_STATUS_DONE
+from app.database import get_db
+from app.models.task import Task
+from app.schemas.analytics import (
     ByUserResponse,
     OverdueResponse,
     OverdueTask,
@@ -16,7 +15,8 @@ from ..schemas.analytics import (
     SummaryResponse,
     UserTaskCount,
 )
-from ..schemas.auth import CurrentUser
+from geofoncier_shared.fastapi.middleware.jwt import require_permission
+from geofoncier_shared.fastapi.schemas.auth import CurrentUser
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 

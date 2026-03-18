@@ -3,15 +3,15 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..database import get_db
-from ..dependencies import require_permission
-from ..models import Permission
-from ..schemas import (
+from app.database import get_db
+from app.dependencies import require_permission
+from app.models import Permission
+from app.schemas import (
     CreatePermissionRequest,
     PermissionResponse,
     UpdatePermissionRequest,
 )
-from ..services.permission_service import (
+from app.services.permission_service import (
     create_permission,
     delete_permission,
     get_permission,

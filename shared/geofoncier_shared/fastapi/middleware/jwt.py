@@ -1,16 +1,30 @@
+import os
+
 import jwt
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from ..config import settings
-from ..redis_client import get_redis
-from ..schemas.auth import CurrentUser
+from geofoncier_shared.fastapi.schemas.auth import CurrentUser
+from geofoncier_shared.redis.redis_client import get_redis
+
+
+def _get_public_key() -> str:
+    key = os.environ.get("JWT_PUBLIC_KEY", "")
+    if key:
+        return key
+    path = os.environ.get("JWT_PUBLIC_KEY_PATH", "")
+    if path:
+        with open(path) as f:
+            return f.read()
+    raise ValueError(
+        "No JWT public key configured (set JWT_PUBLIC_KEY or JWT_PUBLIC_KEY_PATH)"
+    )
+
 
 _bearer = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     redis=Depends(get_redis),
 ) -> CurrentUser:
@@ -21,11 +35,7 @@ async def get_current_user(
 
     token = credentials.credentials
     try:
-        payload = jwt.decode(
-            token,
-            settings.public_key_content,
-            algorithms=["RS256"],
-        )
+        payload = jwt.decode(token, _get_public_key(), algorithms=["RS256"])
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.PyJWTError:

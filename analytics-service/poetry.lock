@@ -518,6 +518,26 @@ standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.8)", "htt
 standard-no-fastapi-cloud-cli = ["email-validator (>=2.0.0)", "fastapi-cli[standard-no-fastapi-cloud-cli] (>=0.0.8)", "httpx (>=0.23.0,<1.0.0)", "jinja2 (>=3.1.5)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.18)", "uvicorn[standard] (>=0.12.0)"]
 
 [[package]]
+name = "geofoncier-shared"
+version = "0.1.0"
+description = "Geofoncier – shared utilities across services"
+optional = false
+python-versions = ">=3.12,<4.0"
+groups = ["main"]
+files = []
+develop = true
+
+[package.dependencies]
+fastapi = ">=0.111.0"
+pydantic-settings = ">=2.0"
+PyJWT = {version = ">=2.8", extras = ["crypto"]}
+redis = {version = ">=5.0", extras = ["hiredis"]}
+
+[package.source]
+type = "directory"
+url = "../shared"
+
+[[package]]
 name = "greenlet"
 version = "3.3.2"
 description = "Lightweight in-process concurrent programming"
@@ -1830,4 +1850,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "af104ecb8685505cca4d302952564febe76927d7a8df4d27260dcc60af42a0cc"
+content-hash = "6655ed38f1305f80a4a966d07bed72184352a7ea1227d42e69d0c3fe02ce53dc"

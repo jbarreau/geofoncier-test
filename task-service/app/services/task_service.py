@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.task import Task, TaskStatusHistory
-from ..schemas.task import TaskCreate, TaskUpdate
+from app.models.task import Task, TaskStatusHistory
+from app.schemas.task import TaskCreate, TaskUpdate
 
 
 async def create_task(db: AsyncSession, data: TaskCreate, owner_id: uuid.UUID) -> Task:

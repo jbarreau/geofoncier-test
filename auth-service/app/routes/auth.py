@@ -3,9 +3,8 @@ import base64
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..database import get_db
-from ..redis_client import get_redis
-from ..schemas import (
+from app.database import get_db
+from app.schemas import (
     LoginRequest,
     LogoutRequest,
     RefreshRequest,
@@ -13,7 +12,8 @@ from ..schemas import (
     TokenResponse,
     UserResponse,
 )
-from ..services import login_user, logout_user, refresh_tokens, register_user
+from app.services import login_user, logout_user, refresh_tokens, register_user
+from geofoncier_shared.redis.redis_client import get_redis
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -62,7 +62,7 @@ async def jwks() -> dict:
     """Expose the RS256 public key in JWKS format for other services."""
     from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
-    from ..config import settings
+    from app.config import settings
 
     pub_key = load_pem_public_key(settings.public_key_content.encode())
     pub_numbers = pub_key.public_numbers()  # type: ignore[union-attr]

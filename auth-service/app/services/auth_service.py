@@ -8,16 +8,16 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from ..exceptions import (
+from app.exceptions import (
     EmailAlreadyExistsError,
     InactiveUserError,
     InvalidCredentialsError,
     InvalidRefreshTokenError,
 )
-from ..models import Permission, RefreshToken, Role, RolePermission, User, UserRole
-from ..schemas import TokenResponse, UserResponse
-from .password_service import hash_password, verify_password
-from .token_service import (
+from app.models import Permission, RefreshToken, Role, RolePermission, User, UserRole
+from app.schemas import TokenResponse, UserResponse
+from app.services.password_service import hash_password, verify_password
+from app.services.token_service import (
     create_access_token,
     create_refresh_token,
     decode_access_token,
