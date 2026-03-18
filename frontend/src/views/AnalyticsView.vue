@@ -216,8 +216,8 @@ const barOptions = computed(() => ({
   plotOptions: { bar: { horizontal: true, borderRadius: 4 } },
   xaxis: {
     categories: byUserData.value?.by_user.map(u => u.owner_id.substring(0, 8) + '…') ?? [],
+    labels: { formatter: (v: number) => String(Math.round(v)) },
   },
-  yaxis: { labels: { formatter: (v: number) => String(Math.round(v)) } },
   dataLabels: { enabled: false },
   tooltip: {
     y: { formatter: (v: number) => `${v} tâche${v > 1 ? 's' : ''}` },
@@ -300,5 +300,14 @@ const barOptions = computed(() => ({
 article > header {
   display: flex;
   align-items: center;
+}
+
+/* Neutralize PicoCSS on ApexCharts toolbar buttons */
+:deep(.apexcharts-toolbar button) {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
