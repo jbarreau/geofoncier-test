@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 @router.post("", status_code=201, response_model=TaskResponse)
 async def create_task(
     body: TaskCreate,
-    current_user: CurrentUser = require_permission("task:create"),
+    current_user: CurrentUser = require_permission("tasks:create"),
     db: AsyncSession = Depends(get_db),
 ) -> TaskResponse:
     task = await task_service.create_task(db, body, current_user.user_id)
@@ -24,7 +24,7 @@ async def create_task(
 
 @router.get("", response_model=list[TaskResponse])
 async def list_tasks(
-    current_user: CurrentUser = require_permission("task:read"),
+    current_user: CurrentUser = require_permission("tasks:read"),
     db: AsyncSession = Depends(get_db),
 ) -> list[TaskResponse]:
     owner_filter = current_user.user_id if "viewer" in current_user.roles else None
@@ -35,7 +35,7 @@ async def list_tasks(
 @router.get("/{task_id}", response_model=TaskResponse)
 async def get_task(
     task_id: uuid.UUID,
-    current_user: CurrentUser = require_permission("task:read"),
+    current_user: CurrentUser = require_permission("tasks:read"),
     db: AsyncSession = Depends(get_db),
 ) -> TaskResponse:
     task = await task_service.get_task(db, task_id)
@@ -52,7 +52,7 @@ async def get_task(
 async def update_task(
     task_id: uuid.UUID,
     body: TaskUpdate,
-    current_user: CurrentUser = require_permission("task:update"),
+    current_user: CurrentUser = require_permission("tasks:update"),
     db: AsyncSession = Depends(get_db),
 ) -> TaskResponse:
     task = await task_service.get_task(db, task_id)
@@ -66,7 +66,7 @@ async def update_task(
 @router.delete("/{task_id}", status_code=204)
 async def delete_task(
     task_id: uuid.UUID,
-    current_user: CurrentUser = require_permission("task:delete"),
+    current_user: CurrentUser = require_permission("tasks:delete"),
     db: AsyncSession = Depends(get_db),
 ) -> None:
     if "admin" not in current_user.roles:

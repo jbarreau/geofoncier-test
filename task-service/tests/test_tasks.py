@@ -34,7 +34,7 @@ def _make_token(
         "permissions": (
             permissions
             if permissions is not None
-            else ["task:create", "task:read", "task:update", "task:delete"]
+            else ["tasks:create", "tasks:read", "tasks:update", "tasks:delete"]
         ),
         "jti": str(uuid.uuid4()),
         "iat": now,
@@ -527,7 +527,7 @@ class TestCreateTaskRoute:
         mock_redis.get = AsyncMock(return_value=None)
         app = _make_app(mock_db, mock_redis)
 
-        token = _make_token(rsa_key_pair["private_key"], permissions=["task:read"])
+        token = _make_token(rsa_key_pair["private_key"], permissions=["tasks:read"])
         with TestClient(app) as client:
             resp = client.post(
                 "/api/tasks",
@@ -546,7 +546,7 @@ class TestCreateTaskRoute:
         token = _make_token(
             rsa_key_pair["private_key"],
             user_id=user_id,
-            permissions=["task:create"],
+            permissions=["tasks:create"],
         )
         task = _make_task(owner_id=user_id)
 
@@ -583,7 +583,7 @@ class TestListTasksRoute:
         mock_redis.get = AsyncMock(return_value=None)
         app = _make_app(mock_db, mock_redis)
 
-        token = _make_token(rsa_key_pair["private_key"], permissions=["task:create"])
+        token = _make_token(rsa_key_pair["private_key"], permissions=["tasks:create"])
         with TestClient(app) as client:
             resp = client.get(
                 "/api/tasks", headers={"Authorization": f"Bearer {token}"}
@@ -601,7 +601,7 @@ class TestListTasksRoute:
             rsa_key_pair["private_key"],
             user_id=user_id,
             roles=["viewer"],
-            permissions=["task:read"],
+            permissions=["tasks:read"],
         )
         tasks = [_make_task(owner_id=user_id)]
 
@@ -629,7 +629,7 @@ class TestListTasksRoute:
         token = _make_token(
             rsa_key_pair["private_key"],
             roles=["admin"],
-            permissions=["task:read"],
+            permissions=["tasks:read"],
         )
         tasks = [_make_task(), _make_task()]
 
@@ -666,7 +666,7 @@ class TestGetTaskRoute:
         token = _make_token(
             rsa_key_pair["private_key"],
             roles=["editor"],
-            permissions=["task:read"],
+            permissions=["tasks:read"],
         )
 
         with patch("app.routes.tasks.task_service.get_task", return_value=task):
@@ -684,7 +684,7 @@ class TestGetTaskRoute:
         mock_redis.get = AsyncMock(return_value=None)
         app = _make_app(mock_db, mock_redis)
 
-        token = _make_token(rsa_key_pair["private_key"], permissions=["task:read"])
+        token = _make_token(rsa_key_pair["private_key"], permissions=["tasks:read"])
 
         with patch("app.routes.tasks.task_service.get_task", return_value=None):
             with TestClient(app) as client:
@@ -707,7 +707,7 @@ class TestGetTaskRoute:
             rsa_key_pair["private_key"],
             user_id=viewer_id,
             roles=["viewer"],
-            permissions=["task:read"],
+            permissions=["tasks:read"],
         )
 
         with patch("app.routes.tasks.task_service.get_task", return_value=task):
@@ -731,7 +731,7 @@ class TestGetTaskRoute:
             rsa_key_pair["private_key"],
             user_id=viewer_id,
             roles=["viewer"],
-            permissions=["task:read"],
+            permissions=["tasks:read"],
         )
 
         with patch("app.routes.tasks.task_service.get_task", return_value=task):
@@ -755,7 +755,7 @@ class TestUpdateTaskRoute:
         mock_redis.get = AsyncMock(return_value=None)
         app = _make_app(mock_db, mock_redis)
 
-        token = _make_token(rsa_key_pair["private_key"], permissions=["task:read"])
+        token = _make_token(rsa_key_pair["private_key"], permissions=["tasks:read"])
         with TestClient(app) as client:
             resp = client.patch(
                 f"/api/tasks/{uuid.uuid4()}",
@@ -770,7 +770,7 @@ class TestUpdateTaskRoute:
         mock_redis.get = AsyncMock(return_value=None)
         app = _make_app(mock_db, mock_redis)
 
-        token = _make_token(rsa_key_pair["private_key"], permissions=["task:update"])
+        token = _make_token(rsa_key_pair["private_key"], permissions=["tasks:update"])
 
         with patch("app.routes.tasks.task_service.get_task", return_value=None):
             with TestClient(app) as client:
@@ -793,7 +793,7 @@ class TestUpdateTaskRoute:
         updated.title = "Updated"
         updated.status = TaskStatus.doing
 
-        token = _make_token(rsa_key_pair["private_key"], permissions=["task:update"])
+        token = _make_token(rsa_key_pair["private_key"], permissions=["tasks:update"])
 
         with patch("app.routes.tasks.task_service.get_task", return_value=task):
             with patch(
@@ -822,7 +822,7 @@ class TestDeleteTaskRoute:
         mock_redis.get = AsyncMock(return_value=None)
         app = _make_app(mock_db, mock_redis)
 
-        token = _make_token(rsa_key_pair["private_key"], permissions=["task:read"])
+        token = _make_token(rsa_key_pair["private_key"], permissions=["tasks:read"])
         with TestClient(app) as client:
             resp = client.delete(
                 f"/api/tasks/{uuid.uuid4()}",
@@ -839,7 +839,7 @@ class TestDeleteTaskRoute:
         token = _make_token(
             rsa_key_pair["private_key"],
             roles=["editor"],
-            permissions=["task:delete"],
+            permissions=["tasks:delete"],
         )
         with TestClient(app) as client:
             resp = client.delete(
@@ -858,7 +858,7 @@ class TestDeleteTaskRoute:
         token = _make_token(
             rsa_key_pair["private_key"],
             roles=["admin"],
-            permissions=["task:delete"],
+            permissions=["tasks:delete"],
         )
 
         with patch("app.routes.tasks.task_service.get_task", return_value=None):
@@ -879,7 +879,7 @@ class TestDeleteTaskRoute:
         token = _make_token(
             rsa_key_pair["private_key"],
             roles=["admin"],
-            permissions=["task:delete"],
+            permissions=["tasks:delete"],
         )
 
         with patch("app.routes.tasks.task_service.get_task", return_value=task):

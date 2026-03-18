@@ -1,10 +1,10 @@
 """
 Task-service end-to-end tests.
 
-Permission mapping (from scripts/seed.py after fix):
-  viewer role: task:read, analytics:read
-  user role:   task:create, task:read, task:update
-  admin role:  task:create, task:read, task:update, task:delete, analytics:*, users:manage
+Permission mapping (from scripts/seed.py):
+  viewer role: tasks:read, analytics:read
+  user role:   tasks:create, tasks:read, tasks:update
+  admin role:  tasks:create, tasks:read, tasks:update, tasks:delete, analytics:*, users:manage
 
 Test users (session fixtures from conftest.py):
   viewer_token  — viewer role only
