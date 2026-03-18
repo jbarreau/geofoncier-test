@@ -12,6 +12,8 @@ rules:
     - - auth-service
       - task-service
       - analytics-service
+      - frontend
+      - shared
       - docker
       - ci
       - deps

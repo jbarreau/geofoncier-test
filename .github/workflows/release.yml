@@ -13,9 +13,18 @@ permissions:
 
 jobs:
   release:
-    name: Semantic Release
+    name: Release ${{ matrix.package.name }}
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      max-parallel: 1
+      matrix:
+        package:
+          - { name: auth-service,       tag: "auth-service/v*",       tool: python }
+          - { name: task-service,       tag: "task-service/v*",       tool: python }
+          - { name: analytics-service,  tag: "analytics-service/v*",  tool: python }
+          - { name: shared,             tag: "shared/v*",             tool: python }
+          - { name: frontend,           tag: "frontend/v*",           tool: node   }
 
     steps:
       - uses: actions/checkout@v4
@@ -23,12 +32,24 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Set up Python 3.12
+        if: ${{ matrix.package.tool == 'python' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Set up Node.js 20
+        if: ${{ matrix.package.tool == 'node' }}
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Install semantic-release
+      - name: Install python-semantic-release
+        if: ${{ matrix.package.tool == 'python' }}
+        run: pip install "python-semantic-release>=9.0"
+
+      - name: Install semantic-release (JS)
+        if: ${{ matrix.package.tool == 'node' }}
         run: |
           npm install -g \
             semantic-release \
@@ -39,7 +60,32 @@ jobs:
             @semantic-release/github \
             conventional-changelog-conventionalcommits
 
-      - name: Run semantic-release
+      - name: Configure git identity
+        run: |
+          git config user.name "Claude Code"
+          git config user.email "claude-code@automation.local"
+
+      - name: Detect changes
+        id: detect
+        run: |
+          LAST=$(git describe --tags --match "${{ matrix.package.tag }}" --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            CHANGED=$(git diff --name-only "$LAST" HEAD -- "${{ matrix.package.name }}/")
+            echo "changed=$([ -n "$CHANGED" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Release (Python)
+        if: ${{ steps.detect.outputs.changed == 'true' && matrix.package.tool == 'python' }}
+        working-directory: ${{ matrix.package.name }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m semantic_release version
+
+      - name: Release (Node)
+        if: ${{ steps.detect.outputs.changed == 'true' && matrix.package.tool == 'node' }}
+        working-directory: ${{ matrix.package.name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: semantic-release
