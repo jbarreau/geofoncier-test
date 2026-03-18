@@ -8,7 +8,7 @@
 - Pull request required
 - Squash and merge only
 
-## Commit Identity
+## Commit & Pull RequestIdentity
 
 git config user.name "Claude Code"
 git config user.email "<claude-code@automation.local>"
