@@ -8,7 +8,7 @@
 - Pull request required
 - Squash and merge only
 
-## Commit & Pull RequestIdentity
+## Commit & Pull Request Identity
 
 git config user.name "Claude Code"
 git config user.email "<claude-code@automation.local>"
@@ -28,6 +28,7 @@ perf(scope): description      → patch release
 ## Pull Request Rules
 
 PR title MUST follow conventional commits.
+PR branch MUST follow branch prefix rules.
 
 PR description must contain:
 
@@ -42,7 +43,6 @@ CI must pass.
 ## Project Architecture
 
 Frontend:
-will see later but likely:
 
 - Vue 3
 - Pinia store
