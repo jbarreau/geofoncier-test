@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "geofoncier-shared"
-version = "0.1.0"
+version = "1.0.0"
 description = "Geofoncier – shared utilities across services"
 authors = []
 packages = [{ include = "geofoncier_shared" }]
@@ -50,13 +50,15 @@ match = "main"
 prerelease = false
 
 [tool.semantic_release.changelog]
-changelog_file = "CHANGELOG.md"
 exclude_commit_patterns = [
     "^chore\\(release\\):",
     "^chore: init",
     "Merge pull request",
     "Merge branch",
 ]
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"
 
 [tool.semantic_release.commit_parser_options]
 minor_tags = ["feat"]
