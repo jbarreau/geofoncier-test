@@ -1,3 +1,5 @@
+## [1.5.1](https://github.com/jbarreau/geofoncier-test/compare/v1.5.0...v1.5.1) (2026-03-18)
+
 ## [1.5.0](https://github.com/jbarreau/geofoncier-test/compare/v1.4.0...v1.5.0) (2026-03-18)
 
 ### Features
