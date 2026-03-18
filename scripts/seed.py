@@ -22,10 +22,10 @@ import bcrypt
 DATABASE_URL = os.environ["DATABASE_URL"].replace("postgresql+asyncpg://", "postgresql://")
 
 PERMISSIONS: list[tuple[str, str]] = [
-    ("task:create", "Create tasks"),
-    ("task:read", "Read tasks"),
-    ("task:update", "Update tasks"),
-    ("task:delete", "Delete tasks"),
+    ("tasks:create", "Create tasks"),
+    ("tasks:read", "Read tasks"),
+    ("tasks:update", "Update tasks"),
+    ("tasks:delete", "Delete tasks"),
     ("analytics:read", "Read analytics"),
     ("analytics:admin", "Admin analytics (by-user aggregates)"),
     ("users:manage", "Manage users"),
@@ -35,10 +35,10 @@ ROLES: dict[str, dict] = {
     "admin": {
         "description": "Full access to all resources",
         "permissions": [
-            "task:create",
-            "task:read",
-            "task:update",
-            "task:delete",
+            "tasks:create",
+            "tasks:read",
+            "tasks:update",
+            "tasks:delete",
             "analytics:read",
             "analytics:admin",
             "users:manage",
@@ -46,11 +46,11 @@ ROLES: dict[str, dict] = {
     },
     "user": {
         "description": "Standard user — can manage own tasks",
-        "permissions": ["task:create", "task:read", "task:update"],
+        "permissions": ["tasks:create", "tasks:read", "tasks:update"],
     },
     "viewer": {
         "description": "Read-only access",
-        "permissions": ["task:read", "analytics:read"],
+        "permissions": ["tasks:read", "analytics:read"],
     },
 }
 

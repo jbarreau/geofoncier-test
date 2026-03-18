@@ -76,9 +76,9 @@ async def registered_users(
     Register 3 test users and assign roles via DB.
 
     Roles (from scripts/seed.py):
-      viewer: task:read, analytics:read
-      user:   task:create, task:read, task:update
-      admin:  task:create, task:read, task:update, task:delete,
+      viewer: tasks:read, analytics:read
+      user:   tasks:create, tasks:read, tasks:update
+      admin:  tasks:create, tasks:read, tasks:update, tasks:delete,
               analytics:read, analytics:admin, users:manage
 
     Each registered user gets the "viewer" role automatically (auth-service behaviour).
