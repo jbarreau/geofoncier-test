@@ -34,3 +34,12 @@ class UserTaskCount(BaseModel):
 
 class ByUserResponse(BaseModel):
     by_user: list[UserTaskCount]
+
+
+class TimePoint(BaseModel):
+    date: str  # ISO date "YYYY-MM-DD"
+    count: int
+
+
+class OverTimeResponse(BaseModel):
+    points: list[TimePoint]
