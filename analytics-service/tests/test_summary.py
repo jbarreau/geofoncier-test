@@ -12,13 +12,13 @@ from .helpers import BlacklistRedis, make_mock_db_scalars, make_token
 
 class TestSummary:
     async def test_no_auth_returns_401(self, client):
-        resp = await client.get("/analytics/summary")
+        resp = await client.get("/api/analytics/summary")
         assert resp.status_code == 401
 
     async def test_missing_permission_returns_403(self, client, rsa_key_pair):
         token = make_token(rsa_key_pair["private_key"], permissions=[])
         resp = await client.get(
-            "/analytics/summary", headers={"Authorization": f"Bearer {token}"}
+            "/api/analytics/summary", headers={"Authorization": f"Bearer {token}"}
         )
         assert resp.status_code == 403
 
@@ -35,7 +35,7 @@ class TestSummary:
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
-            "/analytics/summary",
+            "/api/analytics/summary",
             headers={"Authorization": f"Bearer {token}"},
         )
         app.dependency_overrides.pop(get_db, None)
@@ -55,7 +55,7 @@ class TestSummary:
             expired=True,
         )
         resp = await client.get(
-            "/analytics/summary", headers={"Authorization": f"Bearer {token}"}
+            "/api/analytics/summary", headers={"Authorization": f"Bearer {token}"}
         )
         assert resp.status_code == 401
         assert resp.json()["detail"] == "Token has expired"
@@ -66,7 +66,7 @@ class TestSummary:
         )
         app.dependency_overrides[get_redis] = lambda: BlacklistRedis()
         resp = await client.get(
-            "/analytics/summary",
+            "/api/analytics/summary",
             headers={"Authorization": f"Bearer {token}"},
         )
         assert resp.status_code == 401

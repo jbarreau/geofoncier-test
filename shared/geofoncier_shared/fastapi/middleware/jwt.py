@@ -58,8 +58,8 @@ async def get_current_user(
 def require_permission(permission: str) -> Depends:
     """Dependency factory — use as a route dependency:
 
-    @router.post("/tasks")
-    async def create_task(user: CurrentUser = require_permission("task:create")):
+    @router.post("/api/tasks")
+    async def create_task(user: CurrentUser = require_permission("tasks:create")):
         ...
     """
 

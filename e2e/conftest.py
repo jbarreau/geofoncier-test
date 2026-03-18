@@ -95,7 +95,7 @@ async def registered_users(
     for key, extra_roles in role_extra.items():
         email = f"e2e_{key}_{RUN_ID}@example.com"
         resp = await auth_client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={"email": email, "password": TEST_PASSWORD},
         )
         assert resp.status_code == 201, f"Register '{key}' failed: {resp.text}"
@@ -142,7 +142,7 @@ async def tokens(
     result: dict[str, dict] = {}
     for key, user in registered_users.items():
         resp = await auth_client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": user["email"], "password": TEST_PASSWORD},
         )
         assert resp.status_code == 200, f"Login '{key}' failed: {resp.text}"
@@ -223,7 +223,7 @@ async def created_tasks(
 
     task_ids: list[str] = []
     for spec in task_specs:
-        resp = await task_client.post("/tasks", json=spec, headers=headers)
+        resp = await task_client.post("/api/tasks", json=spec, headers=headers)
         assert resp.status_code == 201, f"Create task failed: {resp.text}"
         task_ids.append(resp.json()["id"])
 

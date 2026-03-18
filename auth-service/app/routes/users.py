@@ -14,7 +14,7 @@ from app.services.user_service import (
     update_user,
 )
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/api/users", tags=["users"])
 
 _MANAGE = Depends(require_permission("users:manage"))
 

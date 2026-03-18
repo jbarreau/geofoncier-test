@@ -45,7 +45,7 @@ class TestJWTMiddlewareEdgeCases:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as ac:
             resp = await ac.get(
-                "/analytics/summary", headers={"Authorization": f"Bearer {token}"}
+                "/api/analytics/summary", headers={"Authorization": f"Bearer {token}"}
             )
         app.dependency_overrides.clear()
         assert resp.status_code == 401
@@ -59,7 +59,7 @@ class TestJWTMiddlewareEdgeCases:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as ac:
             resp = await ac.get(
-                "/analytics/summary", headers={"Authorization": f"Bearer {token}"}
+                "/api/analytics/summary", headers={"Authorization": f"Bearer {token}"}
             )
         app.dependency_overrides.clear()
         assert resp.status_code == 401
@@ -80,7 +80,7 @@ class TestJWTMiddlewareEdgeCases:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as ac:
             resp = await ac.get(
-                "/analytics/summary", headers={"Authorization": f"Bearer {token}"}
+                "/api/analytics/summary", headers={"Authorization": f"Bearer {token}"}
             )
         app.dependency_overrides.clear()
         assert resp.status_code == 401

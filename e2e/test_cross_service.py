@@ -26,8 +26,8 @@ class TestJWTCrossServiceTrust:
         task_client: httpx.AsyncClient,
         viewer_token: str,
     ) -> None:
-        """GET /tasks requires task:read — viewer role has it."""
-        resp = await task_client.get("/tasks", headers=_auth(viewer_token))
+        """GET /tasks requires tasks:read — viewer role has it."""
+        resp = await task_client.get("/api/tasks", headers=_auth(viewer_token))
         assert resp.status_code == 200
 
     async def test_viewer_token_accepted_by_analytics_service(
@@ -38,7 +38,7 @@ class TestJWTCrossServiceTrust:
     ) -> None:
         """GET /analytics/summary requires analytics:read — viewer role has it."""
         resp = await analytics_client.get(
-            "/analytics/summary", headers=_auth(viewer_token)
+            "/api/analytics/summary", headers=_auth(viewer_token)
         )
         assert resp.status_code == 200
 
@@ -49,9 +49,9 @@ class TestJWTCrossServiceTrust:
         admin_token: str,
         created_tasks: list,
     ) -> None:
-        task_resp = await task_client.get("/tasks", headers=_auth(admin_token))
+        task_resp = await task_client.get("/api/tasks", headers=_auth(admin_token))
         analytics_resp = await analytics_client.get(
-            "/analytics/by-user", headers=_auth(admin_token)
+            "/api/analytics/by-user", headers=_auth(admin_token)
         )
         assert task_resp.status_code == 200
         assert analytics_resp.status_code == 200
@@ -69,13 +69,13 @@ class TestLogoutRevokesTokenAcrossServices:
         """Helper: create a fresh user and return tokens."""
         email = f"e2e_revoke_{uuid.uuid4().hex[:8]}@example.com"
         reg = await auth_client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={"email": email, "password": "TestPass123!"},
         )
         assert reg.status_code == 201
 
         login = await auth_client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": email, "password": "TestPass123!"},
         )
         assert login.status_code == 200
@@ -87,7 +87,7 @@ class TestLogoutRevokesTokenAcrossServices:
         task_client: httpx.AsyncClient,
     ) -> None:
         tokens = await self._register_and_login(auth_client)
-        resp = await task_client.get("/tasks", headers=_auth(tokens["access_token"]))
+        resp = await task_client.get("/api/tasks", headers=_auth(tokens["access_token"]))
         assert resp.status_code == 200
 
     async def test_token_rejected_by_task_service_after_logout(
@@ -98,12 +98,12 @@ class TestLogoutRevokesTokenAcrossServices:
         tokens = await self._register_and_login(auth_client)
 
         # Confirm token is valid before logout
-        before = await task_client.get("/tasks", headers=_auth(tokens["access_token"]))
+        before = await task_client.get("/api/tasks", headers=_auth(tokens["access_token"]))
         assert before.status_code == 200
 
         # Logout via auth-service (JTI added to Redis blacklist)
         logout = await auth_client.post(
-            "/auth/logout",
+            "/api/auth/logout",
             json={
                 "access_token": tokens["access_token"],
                 "refresh_token": tokens["refresh_token"],
@@ -112,7 +112,7 @@ class TestLogoutRevokesTokenAcrossServices:
         assert logout.status_code == 204
 
         # Same token must now be rejected by task-service
-        after = await task_client.get("/tasks", headers=_auth(tokens["access_token"]))
+        after = await task_client.get("/api/tasks", headers=_auth(tokens["access_token"]))
         assert after.status_code == 401
 
     async def test_token_rejected_by_analytics_service_after_logout(
@@ -130,7 +130,7 @@ class TestLogoutRevokesTokenAcrossServices:
 
         viewer_email = f"e2e_viewer_{RUN_ID}@example.com"
         login = await auth_client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": viewer_email, "password": TEST_PASSWORD},
         )
         assert login.status_code == 200
@@ -138,13 +138,13 @@ class TestLogoutRevokesTokenAcrossServices:
 
         # Confirm token is valid on analytics before logout
         before = await analytics_client.get(
-            "/analytics/summary", headers=_auth(tokens["access_token"])
+            "/api/analytics/summary", headers=_auth(tokens["access_token"])
         )
         assert before.status_code == 200
 
         # Logout via auth-service
         logout = await auth_client.post(
-            "/auth/logout",
+            "/api/auth/logout",
             json={
                 "access_token": tokens["access_token"],
                 "refresh_token": tokens["refresh_token"],
@@ -154,7 +154,7 @@ class TestLogoutRevokesTokenAcrossServices:
 
         # Same token must now be rejected by analytics-service
         after = await analytics_client.get(
-            "/analytics/summary", headers=_auth(tokens["access_token"])
+            "/api/analytics/summary", headers=_auth(tokens["access_token"])
         )
         assert after.status_code == 401
 
@@ -162,7 +162,7 @@ class TestLogoutRevokesTokenAcrossServices:
         self, task_client: httpx.AsyncClient
     ) -> None:
         resp = await task_client.get(
-            "/tasks", headers={"Authorization": "Bearer not.a.valid.jwt"}
+            "/api/tasks", headers={"Authorization": "Bearer not.a.valid.jwt"}
         )
         assert resp.status_code == 401
 
@@ -170,7 +170,7 @@ class TestLogoutRevokesTokenAcrossServices:
         self, analytics_client: httpx.AsyncClient
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/summary",
+            "/api/analytics/summary",
             headers={"Authorization": "Bearer not.a.valid.jwt"},
         )
         assert resp.status_code == 401

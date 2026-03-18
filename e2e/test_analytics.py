@@ -31,7 +31,7 @@ class TestAnalyticsSummary:
         created_tasks: list,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/summary", headers=_auth(viewer_token)
+            "/api/analytics/summary", headers=_auth(viewer_token)
         )
         assert resp.status_code == 200
         body = resp.json()
@@ -47,7 +47,7 @@ class TestAnalyticsSummary:
         created_tasks: list,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/summary", headers=_auth(admin_token)
+            "/api/analytics/summary", headers=_auth(admin_token)
         )
         assert resp.status_code == 200
 
@@ -58,7 +58,7 @@ class TestAnalyticsSummary:
         created_tasks: list,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/summary", headers=_auth(viewer_token)
+            "/api/analytics/summary", headers=_auth(viewer_token)
         )
         body = resp.json()
         for entry in body["by_status"]:
@@ -73,14 +73,14 @@ class TestAnalyticsSummary:
         user_token: str,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/summary", headers=_auth(user_token)
+            "/api/analytics/summary", headers=_auth(user_token)
         )
         assert resp.status_code == 403
 
     async def test_unauthenticated_gets_401(
         self, analytics_client: httpx.AsyncClient
     ) -> None:
-        resp = await analytics_client.get("/analytics/summary")
+        resp = await analytics_client.get("/api/analytics/summary")
         assert resp.status_code == 401
 
 
@@ -94,7 +94,7 @@ class TestAnalyticsOverdue:
         created_tasks: list,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/overdue", headers=_auth(viewer_token)
+            "/api/analytics/overdue", headers=_auth(viewer_token)
         )
         assert resp.status_code == 200
         body = resp.json()
@@ -110,7 +110,7 @@ class TestAnalyticsOverdue:
         created_tasks: list,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/overdue", headers=_auth(viewer_token)
+            "/api/analytics/overdue", headers=_auth(viewer_token)
         )
         body = resp.json()
         assert body["count"] >= 1
@@ -126,7 +126,7 @@ class TestAnalyticsOverdue:
     ) -> None:
         """Tasks with status=done must not appear in overdue list, even if past due."""
         resp = await analytics_client.get(
-            "/analytics/overdue", headers=_auth(viewer_token)
+            "/api/analytics/overdue", headers=_auth(viewer_token)
         )
         body = resp.json()
         for task in body["tasks"]:
@@ -138,14 +138,14 @@ class TestAnalyticsOverdue:
         user_token: str,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/overdue", headers=_auth(user_token)
+            "/api/analytics/overdue", headers=_auth(user_token)
         )
         assert resp.status_code == 403
 
     async def test_unauthenticated_gets_401(
         self, analytics_client: httpx.AsyncClient
     ) -> None:
-        resp = await analytics_client.get("/analytics/overdue")
+        resp = await analytics_client.get("/api/analytics/overdue")
         assert resp.status_code == 401
 
 
@@ -159,7 +159,7 @@ class TestAnalyticsByUser:
         created_tasks: list,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/by-user", headers=_auth(admin_token)
+            "/api/analytics/by-user", headers=_auth(admin_token)
         )
         assert resp.status_code == 200
         body = resp.json()
@@ -177,7 +177,7 @@ class TestAnalyticsByUser:
     ) -> None:
         """analytics:read is NOT sufficient — analytics:admin is required."""
         resp = await analytics_client.get(
-            "/analytics/by-user", headers=_auth(viewer_token)
+            "/api/analytics/by-user", headers=_auth(viewer_token)
         )
         assert resp.status_code == 403
 
@@ -187,12 +187,12 @@ class TestAnalyticsByUser:
         user_token: str,
     ) -> None:
         resp = await analytics_client.get(
-            "/analytics/by-user", headers=_auth(user_token)
+            "/api/analytics/by-user", headers=_auth(user_token)
         )
         assert resp.status_code == 403
 
     async def test_unauthenticated_gets_401(
         self, analytics_client: httpx.AsyncClient
     ) -> None:
-        resp = await analytics_client.get("/analytics/by-user")
+        resp = await analytics_client.get("/api/analytics/by-user")
         assert resp.status_code == 401

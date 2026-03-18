@@ -530,7 +530,7 @@ class TestCreateTaskRoute:
         token = _make_token(rsa_key_pair["private_key"], permissions=["task:read"])
         with TestClient(app) as client:
             resp = client.post(
-                "/tasks",
+                "/api/tasks",
                 json={"title": "T"},
                 headers={"Authorization": f"Bearer {token}"},
             )
@@ -553,7 +553,7 @@ class TestCreateTaskRoute:
         with patch("app.routes.tasks.task_service.create_task", return_value=task):
             with TestClient(app) as client:
                 resp = client.post(
-                    "/tasks",
+                    "/api/tasks",
                     json={"title": "New task"},
                     headers={"Authorization": f"Bearer {token}"},
                 )
@@ -567,7 +567,7 @@ class TestCreateTaskRoute:
         app = _make_app(mock_db, mock_redis)
 
         with TestClient(app) as client:
-            resp = client.post("/tasks", json={"title": "T"})
+            resp = client.post("/api/tasks", json={"title": "T"})
         assert resp.status_code == 401
 
 
@@ -585,7 +585,9 @@ class TestListTasksRoute:
 
         token = _make_token(rsa_key_pair["private_key"], permissions=["task:create"])
         with TestClient(app) as client:
-            resp = client.get("/tasks", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/api/tasks", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 403
 
     def test_viewer_filtered_by_owner(self, rsa_key_pair):
@@ -612,7 +614,7 @@ class TestListTasksRoute:
         with patch("app.routes.tasks.task_service.list_tasks", side_effect=fake_list):
             with TestClient(app) as client:
                 resp = client.get(
-                    "/tasks", headers={"Authorization": f"Bearer {token}"}
+                    "/api/tasks", headers={"Authorization": f"Bearer {token}"}
                 )
 
         assert resp.status_code == 200
@@ -640,7 +642,7 @@ class TestListTasksRoute:
         with patch("app.routes.tasks.task_service.list_tasks", side_effect=fake_list):
             with TestClient(app) as client:
                 resp = client.get(
-                    "/tasks", headers={"Authorization": f"Bearer {token}"}
+                    "/api/tasks", headers={"Authorization": f"Bearer {token}"}
                 )
 
         assert resp.status_code == 200
@@ -670,7 +672,7 @@ class TestGetTaskRoute:
         with patch("app.routes.tasks.task_service.get_task", return_value=task):
             with TestClient(app) as client:
                 resp = client.get(
-                    f"/tasks/{task.id}",
+                    f"/api/tasks/{task.id}",
                     headers={"Authorization": f"Bearer {token}"},
                 )
         assert resp.status_code == 200
@@ -687,7 +689,7 @@ class TestGetTaskRoute:
         with patch("app.routes.tasks.task_service.get_task", return_value=None):
             with TestClient(app) as client:
                 resp = client.get(
-                    f"/tasks/{uuid.uuid4()}",
+                    f"/api/tasks/{uuid.uuid4()}",
                     headers={"Authorization": f"Bearer {token}"},
                 )
         assert resp.status_code == 404
@@ -711,7 +713,7 @@ class TestGetTaskRoute:
         with patch("app.routes.tasks.task_service.get_task", return_value=task):
             with TestClient(app) as client:
                 resp = client.get(
-                    f"/tasks/{task.id}",
+                    f"/api/tasks/{task.id}",
                     headers={"Authorization": f"Bearer {token}"},
                 )
         assert resp.status_code == 403
@@ -735,7 +737,7 @@ class TestGetTaskRoute:
         with patch("app.routes.tasks.task_service.get_task", return_value=task):
             with TestClient(app) as client:
                 resp = client.get(
-                    f"/tasks/{task.id}",
+                    f"/api/tasks/{task.id}",
                     headers={"Authorization": f"Bearer {token}"},
                 )
         assert resp.status_code == 200
@@ -756,7 +758,7 @@ class TestUpdateTaskRoute:
         token = _make_token(rsa_key_pair["private_key"], permissions=["task:read"])
         with TestClient(app) as client:
             resp = client.patch(
-                f"/tasks/{uuid.uuid4()}",
+                f"/api/tasks/{uuid.uuid4()}",
                 json={"title": "X"},
                 headers={"Authorization": f"Bearer {token}"},
             )
@@ -773,7 +775,7 @@ class TestUpdateTaskRoute:
         with patch("app.routes.tasks.task_service.get_task", return_value=None):
             with TestClient(app) as client:
                 resp = client.patch(
-                    f"/tasks/{uuid.uuid4()}",
+                    f"/api/tasks/{uuid.uuid4()}",
                     json={"title": "X"},
                     headers={"Authorization": f"Bearer {token}"},
                 )
@@ -799,7 +801,7 @@ class TestUpdateTaskRoute:
             ):
                 with TestClient(app) as client:
                     resp = client.patch(
-                        f"/tasks/{task.id}",
+                        f"/api/tasks/{task.id}",
                         json={"title": "Updated", "status": "doing"},
                         headers={"Authorization": f"Bearer {token}"},
                     )
@@ -823,7 +825,7 @@ class TestDeleteTaskRoute:
         token = _make_token(rsa_key_pair["private_key"], permissions=["task:read"])
         with TestClient(app) as client:
             resp = client.delete(
-                f"/tasks/{uuid.uuid4()}",
+                f"/api/tasks/{uuid.uuid4()}",
                 headers={"Authorization": f"Bearer {token}"},
             )
         assert resp.status_code == 403
@@ -841,7 +843,7 @@ class TestDeleteTaskRoute:
         )
         with TestClient(app) as client:
             resp = client.delete(
-                f"/tasks/{uuid.uuid4()}",
+                f"/api/tasks/{uuid.uuid4()}",
                 headers={"Authorization": f"Bearer {token}"},
             )
         assert resp.status_code == 403
@@ -862,7 +864,7 @@ class TestDeleteTaskRoute:
         with patch("app.routes.tasks.task_service.get_task", return_value=None):
             with TestClient(app) as client:
                 resp = client.delete(
-                    f"/tasks/{uuid.uuid4()}",
+                    f"/api/tasks/{uuid.uuid4()}",
                     headers={"Authorization": f"Bearer {token}"},
                 )
         assert resp.status_code == 404
@@ -886,7 +888,7 @@ class TestDeleteTaskRoute:
             ):
                 with TestClient(app) as client:
                     resp = client.delete(
-                        f"/tasks/{task.id}",
+                        f"/api/tasks/{task.id}",
                         headers={"Authorization": f"Bearer {token}"},
                     )
         assert resp.status_code == 204

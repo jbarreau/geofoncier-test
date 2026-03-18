@@ -27,7 +27,7 @@ class TestTaskCreate:
         self, task_client: httpx.AsyncClient, user_token: str
     ) -> None:
         resp = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "My user task", "status": "todo"},
             headers=_auth(user_token),
         )
@@ -42,7 +42,7 @@ class TestTaskCreate:
         self, task_client: httpx.AsyncClient, admin_token: str
     ) -> None:
         resp = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "Admin task", "status": "doing"},
             headers=_auth(admin_token),
         )
@@ -52,7 +52,7 @@ class TestTaskCreate:
         self, task_client: httpx.AsyncClient, viewer_token: str
     ) -> None:
         resp = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "Viewer task"},
             headers=_auth(viewer_token),
         )
@@ -61,7 +61,7 @@ class TestTaskCreate:
     async def test_unauthenticated_cannot_create_task(
         self, task_client: httpx.AsyncClient
     ) -> None:
-        resp = await task_client.post("/tasks", json={"title": "No auth"})
+        resp = await task_client.post("/api/tasks", json={"title": "No auth"})
         assert resp.status_code == 401
 
 
@@ -71,39 +71,39 @@ class TestTaskRead:
     ) -> None:
         # Create a task first
         await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "List test task"},
             headers=_auth(user_token),
         )
-        resp = await task_client.get("/tasks", headers=_auth(user_token))
+        resp = await task_client.get("/api/tasks", headers=_auth(user_token))
         assert resp.status_code == 200
         assert isinstance(resp.json(), list)
 
     async def test_viewer_can_list_tasks(
         self, task_client: httpx.AsyncClient, viewer_token: str
     ) -> None:
-        resp = await task_client.get("/tasks", headers=_auth(viewer_token))
+        resp = await task_client.get("/api/tasks", headers=_auth(viewer_token))
         assert resp.status_code == 200
         assert isinstance(resp.json(), list)
 
     async def test_unauthenticated_cannot_list_tasks(
         self, task_client: httpx.AsyncClient
     ) -> None:
-        resp = await task_client.get("/tasks")
+        resp = await task_client.get("/api/tasks")
         assert resp.status_code == 401
 
     async def test_user_can_get_own_task_by_id(
         self, task_client: httpx.AsyncClient, user_token: str
     ) -> None:
         create = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "Get by id test"},
             headers=_auth(user_token),
         )
         assert create.status_code == 201
         task_id = create.json()["id"]
 
-        resp = await task_client.get(f"/tasks/{task_id}", headers=_auth(user_token))
+        resp = await task_client.get(f"/api/tasks/{task_id}", headers=_auth(user_token))
         assert resp.status_code == 200
         assert resp.json()["id"] == task_id
 
@@ -111,7 +111,7 @@ class TestTaskRead:
         self, task_client: httpx.AsyncClient, user_token: str
     ) -> None:
         resp = await task_client.get(
-            f"/tasks/{uuid.uuid4()}", headers=_auth(user_token)
+            f"/api/tasks/{uuid.uuid4()}", headers=_auth(user_token)
         )
         assert resp.status_code == 404
 
@@ -121,14 +121,14 @@ class TestTaskUpdate:
         self, task_client: httpx.AsyncClient, user_token: str
     ) -> None:
         create = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "Update me", "status": "todo"},
             headers=_auth(user_token),
         )
         task_id = create.json()["id"]
 
         resp = await task_client.patch(
-            f"/tasks/{task_id}",
+            f"/api/tasks/{task_id}",
             json={"status": "doing"},
             headers=_auth(user_token),
         )
@@ -141,14 +141,14 @@ class TestTaskUpdate:
         viewer_token: str,
     ) -> None:
         create = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "Viewer cannot update"},
             headers=_auth(user_token),
         )
         task_id = create.json()["id"]
 
         resp = await task_client.patch(
-            f"/tasks/{task_id}",
+            f"/api/tasks/{task_id}",
             json={"status": "done"},
             headers=_auth(viewer_token),
         )
@@ -160,20 +160,20 @@ class TestTaskDelete:
         self, task_client: httpx.AsyncClient, admin_token: str
     ) -> None:
         create = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "Delete me"},
             headers=_auth(admin_token),
         )
         task_id = create.json()["id"]
 
         resp = await task_client.delete(
-            f"/tasks/{task_id}", headers=_auth(admin_token)
+            f"/api/tasks/{task_id}", headers=_auth(admin_token)
         )
         assert resp.status_code == 204
 
         # Confirm task is gone
         get = await task_client.get(
-            f"/tasks/{task_id}", headers=_auth(admin_token)
+            f"/api/tasks/{task_id}", headers=_auth(admin_token)
         )
         assert get.status_code == 404
 
@@ -181,14 +181,14 @@ class TestTaskDelete:
         self, task_client: httpx.AsyncClient, user_token: str
     ) -> None:
         create = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "User cannot delete"},
             headers=_auth(user_token),
         )
         task_id = create.json()["id"]
 
         resp = await task_client.delete(
-            f"/tasks/{task_id}", headers=_auth(user_token)
+            f"/api/tasks/{task_id}", headers=_auth(user_token)
         )
         assert resp.status_code == 403
 
@@ -196,11 +196,11 @@ class TestTaskDelete:
         self, task_client: httpx.AsyncClient, admin_token: str
     ) -> None:
         create = await task_client.post(
-            "/tasks",
+            "/api/tasks",
             json={"title": "No auth delete"},
             headers=_auth(admin_token),
         )
         task_id = create.json()["id"]
 
-        resp = await task_client.delete(f"/tasks/{task_id}")
+        resp = await task_client.delete(f"/api/tasks/{task_id}")
         assert resp.status_code == 401

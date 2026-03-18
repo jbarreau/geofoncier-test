@@ -12,7 +12,7 @@ class TestRegister:
         )
 
         resp = await client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "email": "user@example.com",
                 "password": "securepass123",
@@ -33,7 +33,7 @@ class TestRegister:
         )
 
         resp = await client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "email": "taken@example.com",
                 "password": "securepass123",
@@ -44,7 +44,7 @@ class TestRegister:
 
     async def test_invalid_email_returns_422(self, client):
         resp = await client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "email": "not-an-email",
                 "password": "securepass123",
@@ -55,7 +55,7 @@ class TestRegister:
 
     async def test_password_too_short_returns_422(self, client):
         resp = await client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "email": "user@example.com",
                 "password": "short",
@@ -66,7 +66,7 @@ class TestRegister:
 
     async def test_password_too_long_returns_422(self, client):
         resp = await client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "email": "user@example.com",
                 "password": "x" * 129,
@@ -76,11 +76,15 @@ class TestRegister:
         assert resp.status_code == 422
 
     async def test_missing_password_returns_422(self, client):
-        resp = await client.post("/auth/register", json={"email": "user@example.com"})
+        resp = await client.post(
+            "/api/auth/register", json={"email": "user@example.com"}
+        )
 
         assert resp.status_code == 422
 
     async def test_missing_email_returns_422(self, client):
-        resp = await client.post("/auth/register", json={"password": "securepass123"})
+        resp = await client.post(
+            "/api/auth/register", json={"password": "securepass123"}
+        )
 
         assert resp.status_code == 422

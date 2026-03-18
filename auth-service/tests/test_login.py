@@ -12,7 +12,7 @@ class TestLogin:
         )
 
         resp = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={
                 "email": "user@example.com",
                 "password": "securepass123",
@@ -32,7 +32,7 @@ class TestLogin:
         )
 
         resp = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={
                 "email": "user@example.com",
                 "password": "wrongpassword",
@@ -49,7 +49,7 @@ class TestLogin:
         )
 
         resp = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={
                 "email": "nobody@example.com",
                 "password": "securepass123",
@@ -65,7 +65,7 @@ class TestLogin:
         )
 
         resp = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={
                 "email": "inactive@example.com",
                 "password": "securepass123",
@@ -75,6 +75,6 @@ class TestLogin:
         assert resp.status_code == 403
 
     async def test_missing_email_returns_422(self, client):
-        resp = await client.post("/auth/login", json={"password": "securepass123"})
+        resp = await client.post("/api/auth/login", json={"password": "securepass123"})
 
         assert resp.status_code == 422
