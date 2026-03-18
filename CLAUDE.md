@@ -34,6 +34,8 @@ PR description must contain:
 - Summary
 - Motivation
 - Implementation details
+- Tests must be done
+- CI must pass
 
 ## Project Architecture
 
