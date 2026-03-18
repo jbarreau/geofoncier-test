@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/jbarreau/geofoncier-test/compare/v1.4.0...v1.5.0) (2026-03-18)
+
+### Features
+
+* **auth:** add full user, role and permission management ([#17](https://github.com/jbarreau/geofoncier-test/issues/17)) ([ee80e46](https://github.com/jbarreau/geofoncier-test/commit/ee80e46091c97f946cb60abb31c12ca5c47c6dd7))
+
 ## [1.4.0](https://github.com/jbarreau/geofoncier-test/compare/v1.3.0...v1.4.0) (2026-03-17)
 
 ### Features
