@@ -1,15 +1,40 @@
+# ═══════════════════════════════════════════════════════════════
+#  DATABASES  — 2 independent PostgreSQL instances
+#
+#   postgres-auth   ← auth-service       (read / write)
+#   postgres-tasks  ← task-service       (read / write)
+#               └── analytics-service  (read-only  •  user: analytics_ro)
+# ═══════════════════════════════════════════════════════════════
+
 services:
-  postgres:
+  postgres-auth:
     image: postgres:16
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: geofoncier
       POSTGRES_PASSWORD: geofoncier
-      POSTGRES_DB: geofoncier
+      POSTGRES_DB: geofoncier_auth
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-db:/docker-entrypoint-initdb.d
+      - postgres_auth_data:/var/lib/postgresql/data
+      - ./init-db/auth:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geofoncier"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-tasks:
+    image: postgres:16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: geofoncier
+      POSTGRES_PASSWORD: geofoncier
+      POSTGRES_DB: geofoncier_tasks
+    volumes:
+      - postgres_tasks_data:/var/lib/postgresql/data
+      - ./init-db/tasks:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U geofoncier"]
       interval: 5s
@@ -49,28 +74,29 @@ services:
       dockerfile: backend/auth-service/Dockerfile
     command: alembic upgrade head
     environment:
-      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-auth/geofoncier_auth
       JWT_PRIVATE_KEY_PATH: /keys/private.pem
       JWT_PUBLIC_KEY_PATH: /keys/public.pem
     volumes:
       - jwt_keys:/keys
     depends_on:
-      postgres:
+      postgres-auth:
         condition: service_healthy
       keygen:
         condition: service_completed_successfully
 
   # Runs Alembic migrations for task-service (idempotent).
+  # Runs in parallel with migrate — independent database instance.
   migrate-tasks:
     build:
       context: .
       dockerfile: backend/task-service/Dockerfile
     command: alembic upgrade head
     environment:
-      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-tasks/geofoncier_tasks
     depends_on:
-      migrate:
-        condition: service_completed_successfully
+      postgres-tasks:
+        condition: service_healthy
 
   # Inserts default roles, permissions, and three seed users (idempotent).
   # Default credentials: see scripts/seed.py or README.
@@ -80,10 +106,12 @@ services:
       dockerfile: backend/auth-service/Dockerfile
     command: python /scripts/seed.py
     environment:
-      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-auth/geofoncier_auth
     volumes:
       - ./scripts:/scripts
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       migrate-tasks:
         condition: service_completed_successfully
 
@@ -94,7 +122,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-auth/geofoncier_auth
       REDIS_URL: redis://redis:6379
       JWT_PRIVATE_KEY_PATH: /keys/private.pem
       JWT_PUBLIC_KEY_PATH: /keys/public.pem
@@ -113,7 +141,7 @@ services:
     ports:
       - "8001:8001"
     environment:
-      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-tasks/geofoncier_tasks
       REDIS_URL: redis://redis:6379
       AUTH_SERVICE_URL: http://auth-service:8000
       JWT_PUBLIC_KEY_PATH: /keys/public.pem
@@ -125,6 +153,8 @@ services:
       redis:
         condition: service_healthy
 
+  # analytics-service connects read-only to postgres-tasks.
+  # It never writes — no migrations, SELECT queries only.
   analytics-service:
     build:
       context: .
@@ -132,7 +162,7 @@ services:
     ports:
       - "8002:8002"
     environment:
-      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      DATABASE_URL: postgresql+asyncpg://analytics_ro:analytics_ro@postgres-tasks/geofoncier_tasks
       REDIS_URL: redis://redis:6379
       AUTH_SERVICE_URL: http://auth-service:8000
       JWT_PUBLIC_KEY_PATH: /keys/public.pem
@@ -166,7 +196,7 @@ services:
       - mock
     command: python /scripts/mock_data.py
     environment:
-      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres/geofoncier
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-auth/geofoncier_auth
     volumes:
       - ./scripts:/scripts
     depends_on:
@@ -174,5 +204,6 @@ services:
         condition: service_completed_successfully
 
 volumes:
-  postgres_data:
+  postgres_auth_data:
+  postgres_tasks_data:
   jwt_keys:
