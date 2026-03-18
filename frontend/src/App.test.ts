@@ -14,6 +14,8 @@ const router = createRouter({
     { path: '/users', component: { template: '<div />' } },
     { path: '/roles', component: { template: '<div />' } },
     { path: '/permissions', component: { template: '<div />' } },
+    { path: '/tasks', component: { template: '<div />' } },
+    { path: '/analytics', component: { template: '<div />' } },
   ],
 })
 
@@ -79,6 +81,27 @@ describe('App.vue — navigation bar', () => {
     expect(wrapper.text()).not.toContain('Utilisateurs')
     expect(wrapper.text()).not.toContain('Rôles')
     expect(wrapper.text()).not.toContain('Permissions')
+  })
+
+  it('shows Analytics link when user has analytics:read', () => {
+    const wrapper = mountApp((store) => {
+      store.accessToken = 'tok'
+      store.permissions = ['analytics:read']
+    })
+    expect(wrapper.text()).toContain('Analytics')
+  })
+
+  it('does not show Analytics link when user lacks analytics:read', () => {
+    const wrapper = mountApp((store) => {
+      store.accessToken = 'tok'
+      store.permissions = ['tasks:read']
+    })
+    expect(wrapper.text()).not.toContain('Analytics')
+  })
+
+  it('does not show Analytics link when not authenticated', () => {
+    const wrapper = mountApp()
+    expect(wrapper.text()).not.toContain('Analytics')
   })
 })
 
