@@ -319,9 +319,13 @@ article > header {
 
 <!-- Non-scoped: neutralize PicoCSS on ApexCharts toolbar -->
 <style>
-/* Icon buttons only — not the dropdown menu items */
+/*
+ * Target direct children of the toolbar that are NOT the dropdown menu.
+ * This resets PicoCSS on icon buttons without touching .apexcharts-menu-item,
+ * which is nested inside .apexcharts-menu (not a direct child of the toolbar).
+ */
 .apexcharts-toolbar button,
-.apexcharts-toolbar-btn {
+.apexcharts-toolbar > div:not(.apexcharts-menu) {
   background-color: transparent !important;
   background: transparent !important;
   border: none !important;
