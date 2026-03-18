@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "geofoncier-shared"
-version = "1.0.0"
+version = "1.0.1"
 description = "Geofoncier – shared utilities across services"
 authors = []
 packages = [{ include = "geofoncier_shared" }]
