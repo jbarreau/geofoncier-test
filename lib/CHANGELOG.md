@@ -2,6 +2,54 @@
 
 <!-- version list -->
 
+## v1.1.0 (2026-03-18)
+
+### Bug Fixes
+
+- **analytics**: Fix ApexCharts toolbar CSS conflict with PicoCSS
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+- **analytics**: Fix download menu layout broken by overly broad CSS rule
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+- **analytics**: Fix NaN labels, CSS toolbar buttons, spread mock task dates
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+- **analytics**: Fix toolbar icon buttons without breaking download menu
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+- **mock**: Add coherent updated_at to task seed data
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+### Features
+
+- **analytics**: Add analytics page with ApexCharts
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+- **analytics**: Add over-time endpoint ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+- **analytics**: Show user email instead of UUID in by-user chart
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+- **home**: Add analytics card on home page
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+### Testing
+
+- **analytics**: Add full test coverage for analytics feature
+  ([#27](https://github.com/jbarreau/geofoncier-test/pull/27),
+  [`687402f`](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
+
 ## v1.0.2 (2026-03-18)
 
 ### Bug Fixes
