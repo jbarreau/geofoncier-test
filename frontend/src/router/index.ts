@@ -38,6 +38,12 @@ const router = createRouter({
       component: () => import('../views/UsersView.vue'),
       meta: { requiresPermission: 'users:manage' },
     },
+    {
+      path: '/tasks',
+      name: 'tasks',
+      component: () => import('../views/TasksView.vue'),
+      meta: { requiresPermission: 'tasks:read' },
+    },
   ],
 })
 

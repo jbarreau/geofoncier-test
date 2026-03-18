@@ -22,6 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref<string | null>(localStorage.getItem('access_token'))
   const refreshToken = ref<string | null>(localStorage.getItem('refresh_token'))
   const permissions = ref<string[]>([])
+  const roles = ref<string[]>([])
   const email = ref<string | null>(null)
 
   // Rehydrate from stored token on startup
@@ -29,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const payload = decodeJwtPayload(accessToken.value)
       permissions.value = payload.permissions
+      roles.value = payload.roles
       email.value = payload.email
     } catch {
       accessToken.value = null
@@ -44,11 +46,16 @@ export const useAuthStore = defineStore('auth', () => {
     return permissions.value.includes(permission)
   }
 
+  function hasRole(role: string): boolean {
+    return roles.value.includes(role)
+  }
+
   function setTokens(access: string, refresh: string): void {
     const payload = decodeJwtPayload(access)
     accessToken.value = access
     refreshToken.value = refresh
     permissions.value = payload.permissions
+    roles.value = payload.roles
     email.value = payload.email
     localStorage.setItem('access_token', access)
     localStorage.setItem('refresh_token', refresh)
@@ -58,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken.value = null
     refreshToken.value = null
     permissions.value = []
+    roles.value = []
     email.value = null
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
@@ -67,9 +75,11 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken,
     refreshToken,
     permissions,
+    roles,
     email,
     isAuthenticated,
     hasPermission,
+    hasRole,
     setTokens,
     clearTokens,
   }
