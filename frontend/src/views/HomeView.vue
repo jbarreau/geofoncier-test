@@ -26,7 +26,7 @@ const auth = useAuthStore()
       <p>Bienvenue, <strong>{{ auth.email }}</strong>.</p>
 
       <div
-        v-if="auth.hasPermission('tasks:read') || auth.hasPermission('users:manage')"
+        v-if="auth.hasPermission('tasks:read') || auth.hasPermission('analytics:read') || auth.hasPermission('users:manage')"
         class="grid"
       >
         <article v-if="auth.hasPermission('tasks:read')">
@@ -35,6 +35,14 @@ const auth = useAuthStore()
             <p>Visualiser et gérer les tâches foncières</p>
           </hgroup>
           <RouterLink to="/tasks" role="button">Ouvrir</RouterLink>
+        </article>
+
+        <article v-if="auth.hasPermission('analytics:read')">
+          <hgroup>
+            <h3>Analytics</h3>
+            <p>Consulter les indicateurs et graphiques de l'activité</p>
+          </hgroup>
+          <RouterLink to="/analytics" role="button">Ouvrir</RouterLink>
         </article>
 
         <template v-if="auth.hasPermission('users:manage')">
