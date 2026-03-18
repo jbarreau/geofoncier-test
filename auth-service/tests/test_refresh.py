@@ -33,7 +33,9 @@ class TestRefresh:
             AsyncMock(side_effect=InvalidRefreshTokenError()),
         )
 
-        resp = await client.post("/api/auth/refresh", json={"refresh_token": "bad-token"})
+        resp = await client.post(
+            "/api/auth/refresh", json={"refresh_token": "bad-token"}
+        )
 
         assert resp.status_code == 401
         assert resp.headers["www-authenticate"] == "Bearer"

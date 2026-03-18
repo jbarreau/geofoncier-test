@@ -267,7 +267,9 @@ class TestAssignPermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.post(
+            f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}"
+        )
 
         _clear_auth()
         assert resp.status_code == 404
@@ -279,7 +281,9 @@ class TestAssignPermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.post(
+            f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}"
+        )
 
         _clear_auth()
         assert resp.status_code == 404
@@ -291,13 +295,17 @@ class TestAssignPermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.post(
+            f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}"
+        )
 
         _clear_auth()
         assert resp.status_code == 409
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.post(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.post(
+            f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}"
+        )
         assert resp.status_code == 401
 
 
@@ -327,7 +335,9 @@ class TestRemovePermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.delete(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.delete(
+            f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}"
+        )
 
         _clear_auth()
         assert resp.status_code == 404
@@ -339,11 +349,15 @@ class TestRemovePermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.delete(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.delete(
+            f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}"
+        )
 
         _clear_auth()
         assert resp.status_code == 404
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.delete(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.delete(
+            f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}"
+        )
         assert resp.status_code == 401

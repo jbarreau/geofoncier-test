@@ -585,7 +585,9 @@ class TestListTasksRoute:
 
         token = _make_token(rsa_key_pair["private_key"], permissions=["task:create"])
         with TestClient(app) as client:
-            resp = client.get("/api/tasks", headers={"Authorization": f"Bearer {token}"})
+            resp = client.get(
+                "/api/tasks", headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 403
 
     def test_viewer_filtered_by_owner(self, rsa_key_pair):

@@ -76,11 +76,15 @@ class TestRegister:
         assert resp.status_code == 422
 
     async def test_missing_password_returns_422(self, client):
-        resp = await client.post("/api/auth/register", json={"email": "user@example.com"})
+        resp = await client.post(
+            "/api/auth/register", json={"email": "user@example.com"}
+        )
 
         assert resp.status_code == 422
 
     async def test_missing_email_returns_422(self, client):
-        resp = await client.post("/api/auth/register", json={"password": "securepass123"})
+        resp = await client.post(
+            "/api/auth/register", json={"password": "securepass123"}
+        )
 
         assert resp.status_code == 422
