@@ -302,12 +302,33 @@ article > header {
   align-items: center;
 }
 
-/* Neutralize PicoCSS on ApexCharts toolbar buttons */
-:deep(.apexcharts-toolbar button) {
-  all: unset;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+</style>
+
+<!-- Non-scoped: neutralize PicoCSS on all ApexCharts toolbar elements -->
+<style>
+.apexcharts-toolbar button,
+.apexcharts-toolbar div {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: inherit !important;
+  width: auto !important;
+  height: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.apexcharts-menu {
+  background: var(--pico-card-background-color, #1e2023) !important;
+  border: 1px solid var(--pico-muted-border-color, #374151) !important;
+}
+
+.apexcharts-menu-item:hover {
+  background: var(--pico-muted-background-color, #374151) !important;
 }
 </style>
