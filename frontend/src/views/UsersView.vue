@@ -12,7 +12,9 @@ async function load() {
   loading.value = true
   error.value = null
   try {
-    ;[users.value, roles.value] = await Promise.all([usersApi.list(), rolesApi.list()])
+    const [fetchedUsers, fetchedRoles] = await Promise.all([usersApi.list(), rolesApi.list()])
+    users.value = fetchedUsers
+    roles.value = fetchedRoles
   } catch {
     error.value = 'Impossible de charger les données.'
   } finally {

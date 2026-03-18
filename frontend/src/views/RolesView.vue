@@ -22,10 +22,12 @@ async function load() {
   loading.value = true
   error.value = null
   try {
-    ;[roles.value, allPermissions.value] = await Promise.all([
+    const [fetchedRoles, fetchedPermissions] = await Promise.all([
       rolesApi.list(),
       permissionsApi.list(),
     ])
+    roles.value = fetchedRoles
+    allPermissions.value = fetchedPermissions
   } catch {
     error.value = 'Impossible de charger les données.'
   } finally {
