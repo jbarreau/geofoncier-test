@@ -317,10 +317,11 @@ article > header {
 
 </style>
 
-<!-- Non-scoped: neutralize PicoCSS on all ApexCharts toolbar elements -->
+<!-- Non-scoped: neutralize PicoCSS on ApexCharts toolbar -->
 <style>
+/* Icon buttons only — not the dropdown menu items */
 .apexcharts-toolbar button,
-.apexcharts-toolbar div {
+.apexcharts-toolbar-btn {
   background-color: transparent !important;
   background: transparent !important;
   border: none !important;
@@ -336,9 +337,16 @@ article > header {
   cursor: pointer !important;
 }
 
+/* Dropdown menu */
 .apexcharts-menu {
   background: var(--pico-card-background-color, #1e2023) !important;
   border: 1px solid var(--pico-muted-border-color, #374151) !important;
+}
+
+.apexcharts-menu-item {
+  display: block !important;
+  padding: 0.4rem 0.75rem !important;
+  cursor: pointer !important;
 }
 
 .apexcharts-menu-item:hover {
