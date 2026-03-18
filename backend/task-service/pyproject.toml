@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "task-service"
-version = "1.0.1"
+version = "1.0.2"
 description = "Geofoncier – task service (CRUD, JWT verification)"
 authors = []
 package-mode = false
