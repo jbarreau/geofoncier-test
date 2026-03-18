@@ -35,3 +35,34 @@ omit = ["geofoncier_shared/__init__.py"]
 
 [tool.black]
 target-version = ["py312"]
+
+# ---------------------------------------------------------------------------
+# python-semantic-release – shared lib specific config
+# Run from this directory: `semantic-release version`
+# ---------------------------------------------------------------------------
+[tool.semantic_release]
+version_toml = ["pyproject.toml:tool.poetry.version"]
+tag_format = "shared/v{version}"
+commit_message = "chore(release): shared {version} [skip ci]"
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
+
+[tool.semantic_release.changelog]
+changelog_file = "CHANGELOG.md"
+exclude_commit_patterns = [
+    "^chore\\(release\\):",
+    "^chore: init",
+    "Merge pull request",
+    "Merge branch",
+]
+
+[tool.semantic_release.commit_parser_options]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf", "refactor"]
+other_allowed_tags = ["chore", "docs", "style", "test", "ci", "build", "revert"]
+
+[tool.semantic_release.publish]
+dist_glob_patterns = []
+upload_to_vcs_release = false
