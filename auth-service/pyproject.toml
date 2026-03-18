@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "auth-service"
-version = "0.1.0"
+version = "1.0.0"
 description = "Geofoncier – auth service (user management, RBAC, JWT RS256)"
 authors = []
 package-mode = false
