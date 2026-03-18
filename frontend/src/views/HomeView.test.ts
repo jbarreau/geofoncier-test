@@ -14,6 +14,7 @@ const router = createRouter({
     { path: '/roles', component: { template: '<div />' } },
     { path: '/permissions', component: { template: '<div />' } },
     { path: '/tasks', component: { template: '<div />' } },
+    { path: '/analytics', component: { template: '<div />' } },
   ],
 })
 
@@ -82,6 +83,34 @@ describe('HomeView', () => {
       store.permissions = ['tasks:read', 'users:manage']
     })
     expect(wrapper.find('.grid').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Tâches')
+    expect(wrapper.text()).toContain('Utilisateurs')
+  })
+
+  it('shows analytics card when user has analytics:read', () => {
+    const wrapper = mountHome((store) => {
+      store.accessToken = 'tok'
+      store.permissions = ['analytics:read']
+    })
+    expect(wrapper.find('.grid').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Analytics')
+  })
+
+  it('does not show analytics card when user lacks analytics:read', () => {
+    const wrapper = mountHome((store) => {
+      store.accessToken = 'tok'
+      store.permissions = ['tasks:read']
+    })
+    expect(wrapper.text()).not.toContain('Analytics')
+  })
+
+  it('shows analytics card alongside admin cards for admin user', () => {
+    const wrapper = mountHome((store) => {
+      store.accessToken = 'tok'
+      store.permissions = ['tasks:read', 'analytics:read', 'analytics:admin', 'users:manage']
+    })
+    expect(wrapper.find('.grid').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Analytics')
     expect(wrapper.text()).toContain('Tâches')
     expect(wrapper.text()).toContain('Utilisateurs')
   })

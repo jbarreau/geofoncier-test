@@ -74,4 +74,34 @@ describe('Router guard', () => {
     await router.push('/permissions')
     expect(router.currentRoute.value.name).toBe('permissions')
   })
+
+  it('redirects unauthenticated user to login when accessing /analytics', async () => {
+    await router.push('/analytics')
+    expect(router.currentRoute.value.name).toBe('login')
+    expect(router.currentRoute.value.query.redirect).toBe('/analytics')
+  })
+
+  it('redirects authenticated user without analytics:read to home', async () => {
+    const store = useAuthStore()
+    store.setTokens(makeFakeJwt({ permissions: [] }), 'ref')
+
+    await router.push('/analytics')
+    expect(router.currentRoute.value.name).toBe('home')
+  })
+
+  it('allows authenticated user with analytics:read to access /analytics', async () => {
+    const store = useAuthStore()
+    store.setTokens(makeFakeJwt({ permissions: ['analytics:read'] }), 'ref')
+
+    await router.push('/analytics')
+    expect(router.currentRoute.value.name).toBe('analytics')
+  })
+
+  it('allows admin (analytics:admin) to access /analytics via analytics:read', async () => {
+    const store = useAuthStore()
+    store.setTokens(makeFakeJwt({ permissions: ['analytics:read', 'analytics:admin'] }), 'ref')
+
+    await router.push('/analytics')
+    expect(router.currentRoute.value.name).toBe('analytics')
+  })
 })

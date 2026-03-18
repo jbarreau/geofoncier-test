@@ -67,12 +67,12 @@ STATUSES = ["todo", "doing", "done"]
 STATUS_WEIGHTS = [0.5, 0.3, 0.2]
 
 
-def random_due_date() -> datetime | None:
+def random_due_date(now: datetime) -> datetime | None:
     """Return a random due date (past or future) or None."""
     if random.random() < 0.2:
         return None
     offset_days = random.randint(-30, 60)
-    return datetime.now(timezone.utc) + timedelta(days=offset_days)
+    return now + timedelta(days=offset_days)
 
 
 async def mock() -> None:
@@ -87,6 +87,7 @@ async def mock() -> None:
         user_ids = [r["id"] for r in user_rows]
         print(f"[mock-tasks] Found {len(user_ids)} user(s) to assign tasks to.")
 
+        now = datetime.now(timezone.utc)
         created = 0
         for _ in range(MOCK_TASK_COUNT):
             task_id = uuid.uuid4()
@@ -94,12 +95,17 @@ async def mock() -> None:
             description = random.choice(TASK_DESCRIPTIONS)
             status = random.choices(STATUSES, weights=STATUS_WEIGHTS, k=1)[0]
             owner_id = random.choice(user_ids)
-            due_date = random_due_date()
+            due_date = random_due_date(now)
+            # Spread created_at over the last 60 days for realistic analytics
+            created_at = now - timedelta(days=random.randint(0, 60), hours=random.randint(0, 23))
+            # updated_at: always >= created_at, <= now
+            max_offset = int((now - created_at).total_seconds())
+            updated_at = created_at + timedelta(seconds=random.randint(0, max_offset))
 
             row = await tasks_conn.fetchrow(
                 """
-                INSERT INTO tasks.tasks (id, title, description, status, owner_id, due_date)
-                VALUES ($1, $2, $3, $4::tasks.taskstatus, $5, $6)
+                INSERT INTO tasks.tasks (id, title, description, status, owner_id, due_date, created_at, updated_at)
+                VALUES ($1, $2, $3, $4::tasks.taskstatus, $5, $6, $7, $8)
                 ON CONFLICT (id) DO NOTHING
                 RETURNING id
                 """,
@@ -109,6 +115,8 @@ async def mock() -> None:
                 status,
                 owner_id,
                 due_date,
+                created_at,
+                updated_at,
             )
 
             if row:

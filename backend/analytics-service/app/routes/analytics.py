@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, select
+from sqlalchemy import Date, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants import PERM_ANALYTICS_ADMIN, PERM_ANALYTICS_READ, TASK_STATUS_DONE
@@ -9,10 +9,12 @@ from app.database import get_db
 from app.models.task import Task
 from app.schemas.analytics import (
     ByUserResponse,
+    OverTimeResponse,
     OverdueResponse,
     OverdueTask,
     StatusCount,
     SummaryResponse,
+    TimePoint,
     UserTaskCount,
 )
 from geofoncier_shared.fastapi.middleware.jwt import require_permission
@@ -72,4 +74,25 @@ async def get_by_user(
     )
     return ByUserResponse(
         by_user=[UserTaskCount(owner_id=row.owner_id, count=row.count) for row in rows]
+    )
+
+
+@router.get("/over-time", response_model=OverTimeResponse)
+async def get_over_time(
+    _: CurrentUser = require_permission(PERM_ANALYTICS_READ),
+    db: AsyncSession = Depends(get_db),
+    days: int = Query(default=30, ge=7, le=90),
+) -> OverTimeResponse:
+    since = datetime.now(timezone.utc) - timedelta(days=days)
+    rows = await db.execute(
+        select(
+            cast(Task.created_at, Date).label("date"),
+            func.count().label("count"),
+        )
+        .where(Task.created_at >= since)
+        .group_by(cast(Task.created_at, Date))
+        .order_by(cast(Task.created_at, Date))
+    )
+    return OverTimeResponse(
+        points=[TimePoint(date=str(row.date), count=row.count) for row in rows]
     )
