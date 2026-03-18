@@ -155,13 +155,17 @@ async def mock() -> None:
                 if random.random() < 0.75:
                     offset_days = random.randint(-15, 45)
                     due_date = now + timedelta(days=offset_days)
-                # created_at: spread over the last 60 days with a slight recency bias
+                # created_at: spread over the last 60 days
                 created_at = now - timedelta(days=random.randint(0, 60), hours=random.randint(0, 23))
+                # updated_at: between created_at and now (tasks done/doing tend to be updated more recently)
+                max_update_offset = int((now - created_at).total_seconds())
+                update_offset = random.randint(0, max_update_offset)
+                updated_at = created_at + timedelta(seconds=update_offset)
 
                 await conn.execute(
                     """
-                    INSERT INTO tasks.tasks (id, title, description, status, owner_id, due_date, created_at)
-                    VALUES ($1, $2, $3, $4::tasks.taskstatus, $5, $6, $7)
+                    INSERT INTO tasks.tasks (id, title, description, status, owner_id, due_date, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4::tasks.taskstatus, $5, $6, $7, $8)
                     """,
                     uuid.uuid4(),
                     title,
@@ -170,6 +174,7 @@ async def mock() -> None:
                     owner_id,
                     due_date,
                     created_at,
+                    updated_at,
                 )
                 tasks_created += 1
 
