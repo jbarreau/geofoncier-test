@@ -26,6 +26,18 @@ const router = createRouter({
       component: () => import('../views/PermissionsView.vue'),
       meta: { requiresPermission: 'users:manage' },
     },
+    {
+      path: '/roles',
+      name: 'roles',
+      component: () => import('../views/RolesView.vue'),
+      meta: { requiresPermission: 'users:manage' },
+    },
+    {
+      path: '/users',
+      name: 'users',
+      component: () => import('../views/UsersView.vue'),
+      meta: { requiresPermission: 'users:manage' },
+    },
   ],
 })
 

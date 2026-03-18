@@ -26,6 +26,12 @@ async function logout() {
     </ul>
     <ul>
       <li v-if="auth.isAuthenticated && auth.hasPermission('users:manage')">
+        <RouterLink to="/users">Utilisateurs</RouterLink>
+      </li>
+      <li v-if="auth.isAuthenticated && auth.hasPermission('users:manage')">
+        <RouterLink to="/roles">Rôles</RouterLink>
+      </li>
+      <li v-if="auth.isAuthenticated && auth.hasPermission('users:manage')">
         <RouterLink to="/permissions">Permissions</RouterLink>
       </li>
       <li v-if="auth.isAuthenticated">

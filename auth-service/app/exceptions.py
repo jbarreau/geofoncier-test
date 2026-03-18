@@ -66,3 +66,59 @@ class PermissionNameConflictError(HTTPException):
             status_code=status.HTTP_409_CONFLICT,
             detail="A permission with this name already exists.",
         )
+
+
+class UserNotFoundError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )
+
+
+class RoleNotFoundError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Role not found.",
+        )
+
+
+class RoleNameConflictError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A role with this name already exists.",
+        )
+
+
+class UserRoleAlreadyAssignedError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This role is already assigned to the user.",
+        )
+
+
+class UserRoleNotFoundError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This role is not assigned to the user.",
+        )
+
+
+class RolePermissionAlreadyAssignedError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This permission is already assigned to the role.",
+        )
+
+
+class RolePermissionNotFoundError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This permission is not assigned to the role.",
+        )
