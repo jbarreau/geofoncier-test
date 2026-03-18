@@ -7,7 +7,7 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.12,<4.0"
-geofoncier-shared = { path = "../shared", develop = true }
+geofoncier-shared = { path = "../../lib", develop = true }
 fastapi = ">=0.111.0"
 uvicorn = { version = ">=0.29.0", extras = ["standard"] }
 sqlalchemy = { version = ">=2.0", extras = ["asyncio"] }

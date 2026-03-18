@@ -22,9 +22,9 @@ REPO_ROOT = Path(__file__).parent.parent
 OPENAPI_DIR = REPO_ROOT / "openapi"
 
 SERVICES = [
-    ("auth-service", "auth-service.json"),
-    ("task-service", "task-service.json"),
-    ("analytics-service", "analytics-service.json"),
+    ("backend/auth-service", "auth-service.json"),
+    ("backend/task-service", "task-service.json"),
+    ("backend/analytics-service", "analytics-service.json"),
 ]
 
 # Minimal env vars to satisfy pydantic-settings validation at import time.

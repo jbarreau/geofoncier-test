@@ -35,21 +35,21 @@ jobs:
       - name: Cache Poetry virtualenv
         uses: actions/cache@v4
         with:
-          path: shared/.venv
-          key: ${{ runner.os }}-venv-shared-${{ hashFiles('shared/poetry.lock') }}
+          path: lib/.venv
+          key: ${{ runner.os }}-venv-lib-${{ hashFiles('lib/poetry.lock') }}
           restore-keys: |
-            ${{ runner.os }}-venv-shared-
+            ${{ runner.os }}-venv-lib-
 
       - name: Install dependencies
-        working-directory: shared
+        working-directory: lib
         run: poetry install --with dev
 
       - name: Format check (black)
-        working-directory: shared
+        working-directory: lib
         run: poetry run black --check .
 
       - name: Run tests with coverage
-        working-directory: shared
+        working-directory: lib
         run: |
           poetry run pytest \
             --cov=geofoncier_shared \
@@ -60,7 +60,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: shared/coverage.xml
+          file: lib/coverage.xml
           flags: shared
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
@@ -123,7 +123,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.service }}-${{ hashFiles(format('{0}/poetry.lock', matrix.service)) }}
+          key: ${{ runner.os }}-pip-${{ matrix.service }}-${{ hashFiles(format('backend/{0}/poetry.lock', matrix.service)) }}
           restore-keys: |
             ${{ runner.os }}-pip-${{ matrix.service }}-
             ${{ runner.os }}-pip-
@@ -131,21 +131,21 @@ jobs:
       - name: Cache Poetry virtualenv
         uses: actions/cache@v4
         with:
-          path: ${{ matrix.service }}/.venv
-          key: ${{ runner.os }}-venv-${{ matrix.service }}-${{ hashFiles(format('{0}/poetry.lock', matrix.service)) }}
+          path: backend/${{ matrix.service }}/.venv
+          key: ${{ runner.os }}-venv-${{ matrix.service }}-${{ hashFiles(format('backend/{0}/poetry.lock', matrix.service)) }}
           restore-keys: |
             ${{ runner.os }}-venv-${{ matrix.service }}-
 
       - name: Install dependencies
-        working-directory: ${{ matrix.service }}
+        working-directory: backend/${{ matrix.service }}
         run: poetry install --with dev
 
       - name: Format check (black)
-        working-directory: ${{ matrix.service }}
+        working-directory: backend/${{ matrix.service }}
         run: poetry run black --check .
 
       - name: Run tests with coverage
-        working-directory: ${{ matrix.service }}
+        working-directory: backend/${{ matrix.service }}
         env:
           DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@localhost/geofoncier_test
           REDIS_URL: redis://localhost:6379
@@ -159,7 +159,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: ${{ matrix.service }}/coverage.xml
+          file: backend/${{ matrix.service }}/coverage.xml
           flags: ${{ matrix.service }}
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
@@ -200,11 +200,11 @@ jobs:
           done
 
       - name: Install e2e dependencies
-        working-directory: e2e
+        working-directory: test_e2e
         run: poetry install --no-root
 
       - name: Run e2e tests
-        working-directory: e2e
+        working-directory: test_e2e
         env:
           E2E_AUTH_URL: http://localhost:8000
           E2E_TASK_URL: http://localhost:8001

@@ -21,11 +21,11 @@ jobs:
       max-parallel: 1
       matrix:
         package:
-          - { name: auth-service,       tag: "auth-service/v*",       tool: python }
-          - { name: task-service,       tag: "task-service/v*",       tool: python }
-          - { name: analytics-service,  tag: "analytics-service/v*",  tool: python }
-          - { name: shared,             tag: "shared/v*",             tool: python }
-          - { name: frontend,           tag: "frontend/v*",           tool: node   }
+          - { name: auth-service,       path: backend/auth-service,       tag: "auth-service/v*",       tool: python }
+          - { name: task-service,       path: backend/task-service,       tag: "task-service/v*",       tool: python }
+          - { name: analytics-service,  path: backend/analytics-service,  tag: "analytics-service/v*",  tool: python }
+          - { name: lib,                path: lib,                        tag: "lib/v*",                tool: python }
+          - { name: frontend,           path: frontend,                   tag: "frontend/v*",           tool: node   }
 
     steps:
       - uses: actions/checkout@v4
@@ -74,20 +74,20 @@ jobs:
           if [ -z "$LAST" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
-            CHANGED=$(git diff --name-only "$LAST" HEAD -- "${{ matrix.package.name }}/")
+            CHANGED=$(git diff --name-only "$LAST" HEAD -- "${{ matrix.package.path }}/")
             echo "changed=$([ -n "$CHANGED" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Release (Python)
         if: ${{ steps.detect.outputs.changed == 'true' && matrix.package.tool == 'python' }}
-        working-directory: ${{ matrix.package.name }}
+        working-directory: ${{ matrix.package.path }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python -m semantic_release version
 
       - name: Release (Node)
         if: ${{ steps.detect.outputs.changed == 'true' && matrix.package.tool == 'node' }}
-        working-directory: ${{ matrix.package.name }}
+        working-directory: ${{ matrix.package.path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: semantic-release
