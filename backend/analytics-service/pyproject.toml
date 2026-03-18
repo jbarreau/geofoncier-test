@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "analytics-service"
-version = "1.0.0"
+version = "1.0.1"
 description = "Geofoncier – analytics service (read-only aggregates)"
 authors = []
 package-mode = false
