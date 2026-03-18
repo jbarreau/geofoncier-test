@@ -4,19 +4,20 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   test: {
-    globals: true,
     environment: 'jsdom',
-    setupFiles: [],
+    globals: true,
+    setupFiles: ['./src/__tests__/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
       include: ['src/**/*.{ts,vue}'],
-    },
-  },
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      exclude: ['src/main.ts'],
     },
   },
 })
