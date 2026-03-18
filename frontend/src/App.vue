@@ -28,6 +28,9 @@ async function logout() {
       <li v-if="auth.isAuthenticated && auth.hasPermission('tasks:read')">
         <RouterLink to="/tasks">Tâches</RouterLink>
       </li>
+      <li v-if="auth.isAuthenticated && auth.hasPermission('analytics:read')">
+        <RouterLink to="/analytics">Analytics</RouterLink>
+      </li>
       <li v-if="auth.isAuthenticated && auth.hasPermission('users:manage')">
         <RouterLink to="/users">Utilisateurs</RouterLink>
       </li>

@@ -14,9 +14,11 @@
   },
   "dependencies": {
     "@picocss/pico": "^2.0.6",
+    "apexcharts": "^5.10.4",
     "pinia": "^2.1.7",
     "vue": "^3.4.0",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vue3-apexcharts": "^1.11.1"
   },
   "devDependencies": {
     "@pinia/testing": "^0.1.3",
