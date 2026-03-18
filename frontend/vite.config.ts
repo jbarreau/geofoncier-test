@@ -12,19 +12,38 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Les services FastAPI enregistrent leurs propres préfixes —
-      // on transmet l'URI complète telle quelle (pas de rewrite).
-      '/auth': {
+      // Tous les appels backend passent par /api/ — le préfixe est strippé
+      // avant transmission au service cible (les services FastAPI gardent
+      // leurs propres préfixes : /auth, /tasks, /analytics, /permissions).
+      '/api/auth': {
         target: 'http://localhost:8000',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      '/tasks': {
+      '/api/tasks': {
         target: 'http://localhost:8001',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      '/analytics': {
+      '/api/analytics': {
         target: 'http://localhost:8002',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/api/permissions': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/api/roles': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/api/users': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },

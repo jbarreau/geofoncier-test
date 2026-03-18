@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from .redis_client import close_redis
-from .routes import auth_router
+from .routes import auth_router, permissions_router, roles_router, users_router
 
 app = FastAPI(title="auth-service")
 
@@ -21,6 +21,9 @@ async def shutdown() -> None:
 
 
 app.include_router(auth_router)
+app.include_router(permissions_router)
+app.include_router(roles_router)
+app.include_router(users_router)
 
 
 @app.get("/health")

@@ -6,9 +6,9 @@ Idempotent: safe to run multiple times.
 
 Default accounts
 ----------------
-admin@geofoncier.local   password: admin123   role: admin
-user@geofoncier.local    password: user123    role: user
-viewer@geofoncier.local  password: viewer123  role: viewer
+admin@geofoncier.com   password: admin123   role: admin
+user@geofoncier.com    password: user123    role: user
+viewer@geofoncier.com  password: viewer123  role: viewer
 """
 
 import asyncio
@@ -55,9 +55,9 @@ ROLES: dict[str, dict] = {
 }
 
 USERS: list[dict] = [
-    {"email": "admin@geofoncier.local", "password": "admin123", "role": "admin"},
-    {"email": "user@geofoncier.local", "password": "user123", "role": "user"},
-    {"email": "viewer@geofoncier.local", "password": "viewer123", "role": "viewer"},
+    {"email": "admin@geofoncier.com", "password": "admin123", "role": "admin"},
+    {"email": "user@geofoncier.com", "password": "user123", "role": "user"},
+    {"email": "viewer@geofoncier.com", "password": "viewer123", "role": "viewer"},
 ]
 
 
