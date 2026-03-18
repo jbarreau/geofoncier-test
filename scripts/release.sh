@@ -50,7 +50,7 @@ log() { echo "[release] $*"; }
 
 release_service() {
   local service="$1"
-  local service_dir="$ROOT_DIR/$service"
+  local service_dir="$ROOT_DIR/backend/$service"
 
   if [[ ! -d "$service_dir" ]]; then
     echo "Service directory not found: $service_dir" >&2

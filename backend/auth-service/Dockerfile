@@ -6,9 +6,9 @@ ENV POETRY_NO_INTERACTION=1 \
 
 RUN pip install --no-cache-dir poetry
 
-COPY shared/ /shared
-COPY auth-service/pyproject.toml auth-service/poetry.lock ./
+COPY lib/ /lib
+COPY backend/auth-service/pyproject.toml backend/auth-service/poetry.lock ./
 RUN poetry install --no-root --without dev
 
-COPY auth-service/ .
+COPY backend/auth-service/ .
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -8,6 +8,11 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: [],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      include: ['src/**/*.{ts,vue}'],
+    },
   },
   resolve: {
     alias: {

@@ -6,6 +6,6 @@ repos:
         entry: python scripts/generate_openapi.py
         language: system
         # Re-run whenever Python source files in any service change.
-        files: ^(auth-service|task-service|analytics-service)/.*\.py$
+        files: ^backend/(auth-service|task-service|analytics-service)/.*\.py$
         pass_filenames: false
         stages: [pre-commit]

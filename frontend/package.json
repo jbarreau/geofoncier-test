@@ -9,6 +9,7 @@
     "lint": "eslint . --ext .vue,.ts,.tsx --max-warnings 0",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "dependencies": {
