@@ -92,6 +92,7 @@
 import { onMounted, ref, computed } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { analyticsApi } from '../api/analytics'
+import { usersApi } from '../api/users'
 import type { SummaryResponse, OverdueResponse, ByUserResponse, OverTimeResponse } from '../api/analytics'
 
 const auth = useAuthStore()
@@ -104,6 +105,7 @@ const summaryData = ref<SummaryResponse | null>(null)
 const overdueData = ref<OverdueResponse | null>(null)
 const overTimeData = ref<OverTimeResponse | null>(null)
 const byUserData = ref<ByUserResponse | null>(null)
+const userEmailMap = ref<Record<string, string>>({})
 
 const summaryError = ref<string | null>(null)
 const overdueError = ref<string | null>(null)
@@ -139,13 +141,22 @@ onMounted(async () => {
 
   loadingMain.value = false
 
-  // Load by-user chart separately (requires analytics:admin)
+  // Load by-user chart + user list in parallel (requires analytics:admin = also has users:manage)
   if (auth.hasPermission('analytics:admin')) {
     loadingByUser.value = true
     try {
-      byUserData.value = await analyticsApi.getByUser()
-    } catch {
-      byUserError.value = 'Impossible de charger les données'
+      const [byUserResult, usersResult] = await Promise.allSettled([
+        analyticsApi.getByUser(),
+        usersApi.list(),
+      ])
+      if (byUserResult.status === 'fulfilled') {
+        byUserData.value = byUserResult.value
+      } else {
+        byUserError.value = 'Impossible de charger les données'
+      }
+      if (usersResult.status === 'fulfilled') {
+        userEmailMap.value = Object.fromEntries(usersResult.value.map(u => [u.id, u.email]))
+      }
     } finally {
       loadingByUser.value = false
     }
@@ -215,7 +226,9 @@ const barOptions = computed(() => ({
   colors: ['#8b5cf6'],
   plotOptions: { bar: { horizontal: true, borderRadius: 4 } },
   xaxis: {
-    categories: byUserData.value?.by_user.map(u => u.owner_id.substring(0, 8) + '…') ?? [],
+    categories: byUserData.value?.by_user.map(u =>
+      userEmailMap.value[u.owner_id] ?? u.owner_id.substring(0, 8) + '…'
+    ) ?? [],
     labels: { formatter: (v: number) => String(Math.round(v)) },
   },
   dataLabels: { enabled: false },
