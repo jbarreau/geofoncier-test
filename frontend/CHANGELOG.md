@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/jbarreau/geofoncier-test/compare/frontend/v1.0.1...frontend/v1.1.0) (2026-03-18)
+
+### Features
+
+* **analytics:** add analytics page with ApexCharts ([#27](https://github.com/jbarreau/geofoncier-test/issues/27)) ([687402f](https://github.com/jbarreau/geofoncier-test/commit/687402f58dc0b4ac170520c5e0a966f734b1f08e))
+
 ## [1.0.1](https://github.com/jbarreau/geofoncier-test/compare/frontend/v1.0.0...frontend/v1.0.1) (2026-03-18)
 
 ## 1.0.0 (2026-03-18)
