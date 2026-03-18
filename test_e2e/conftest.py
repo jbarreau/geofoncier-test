@@ -8,7 +8,7 @@ Service URLs and DB DSN can be overridden via environment variables:
   E2E_AUTH_URL        (default: http://localhost:8000)
   E2E_TASK_URL        (default: http://localhost:8001)
   E2E_ANALYTICS_URL   (default: http://localhost:8002)
-  E2E_DB_DSN          (default: postgresql://geofoncier:geofoncier@localhost:5432/geofoncier)
+  E2E_AUTH_DB_DSN     (default: postgresql://geofoncier:geofoncier@localhost:5432/geofoncier_auth)
 """
 
 import os
@@ -23,8 +23,8 @@ AUTH_URL = os.environ.get("E2E_AUTH_URL", "http://localhost:8000")
 TASK_URL = os.environ.get("E2E_TASK_URL", "http://localhost:8001")
 ANALYTICS_URL = os.environ.get("E2E_ANALYTICS_URL", "http://localhost:8002")
 DB_DSN = os.environ.get(
-    "E2E_DB_DSN",
-    "postgresql://geofoncier:geofoncier@localhost:5432/geofoncier",
+    "E2E_AUTH_DB_DSN",
+    "postgresql://geofoncier:geofoncier@localhost:5432/geofoncier_auth",
 )
 
 # Unique run ID — namespaces all test users so multiple runs don't collide.
