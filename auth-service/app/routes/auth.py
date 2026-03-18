@@ -15,7 +15,7 @@ from app.schemas import (
 from app.services import login_user, logout_user, refresh_tokens, register_user
 from geofoncier_shared.redis.redis_client import get_redis
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post(

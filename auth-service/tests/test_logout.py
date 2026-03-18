@@ -10,7 +10,7 @@ class TestLogout:
         )
 
         resp = await client.post(
-            "/auth/logout",
+            "/api/auth/logout",
             json={
                 "access_token": "header.payload.sig",
                 "refresh_token": f"{uuid.uuid4()}:{uuid.uuid4()}",
@@ -30,7 +30,7 @@ class TestLogout:
         refresh = f"{uuid.uuid4()}:{uuid.uuid4()}"
 
         await client.post(
-            "/auth/logout",
+            "/api/auth/logout",
             json={
                 "access_token": access,
                 "refresh_token": refresh,
@@ -43,7 +43,7 @@ class TestLogout:
 
     async def test_missing_access_token_returns_422(self, client):
         resp = await client.post(
-            "/auth/logout",
+            "/api/auth/logout",
             json={
                 "refresh_token": f"{uuid.uuid4()}:{uuid.uuid4()}",
             },
@@ -53,7 +53,7 @@ class TestLogout:
 
     async def test_missing_refresh_token_returns_422(self, client):
         resp = await client.post(
-            "/auth/logout",
+            "/api/auth/logout",
             json={
                 "access_token": "header.payload.sig",
             },

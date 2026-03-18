@@ -18,7 +18,7 @@ from app.schemas.analytics import (
 from geofoncier_shared.fastapi.middleware.jwt import require_permission
 from geofoncier_shared.fastapi.schemas.auth import CurrentUser
 
-router = APIRouter(prefix="/analytics", tags=["analytics"])
+router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
 
 @router.get("/summary", response_model=SummaryResponse)

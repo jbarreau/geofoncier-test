@@ -11,7 +11,7 @@ from .helpers import OWNER_A, OWNER_B, make_mock_db_scalars, make_token
 
 class TestByUser:
     async def test_no_auth_returns_401(self, client):
-        resp = await client.get("/analytics/by-user")
+        resp = await client.get("/api/analytics/by-user")
         assert resp.status_code == 401
 
     async def test_analytics_read_not_enough(self, client, rsa_key_pair):
@@ -20,7 +20,7 @@ class TestByUser:
             rsa_key_pair["private_key"], permissions=[PERM_ANALYTICS_READ]
         )
         resp = await client.get(
-            "/analytics/by-user", headers={"Authorization": f"Bearer {token}"}
+            "/api/analytics/by-user", headers={"Authorization": f"Bearer {token}"}
         )
         assert resp.status_code == 403
 
@@ -36,7 +36,7 @@ class TestByUser:
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
-            "/analytics/by-user",
+            "/api/analytics/by-user",
             headers={"Authorization": f"Bearer {token}"},
         )
         app.dependency_overrides.pop(get_db, None)
@@ -59,7 +59,7 @@ class TestByUser:
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
-            "/analytics/by-user",
+            "/api/analytics/by-user",
             headers={"Authorization": f"Bearer {token}"},
         )
         app.dependency_overrides.pop(get_db, None)

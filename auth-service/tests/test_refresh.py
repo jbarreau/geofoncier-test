@@ -15,7 +15,7 @@ class TestRefresh:
         )
 
         resp = await client.post(
-            "/auth/refresh",
+            "/api/auth/refresh",
             json={
                 "refresh_token": f"{uuid.uuid4()}:{uuid.uuid4()}",
             },
@@ -33,7 +33,7 @@ class TestRefresh:
             AsyncMock(side_effect=InvalidRefreshTokenError()),
         )
 
-        resp = await client.post("/auth/refresh", json={"refresh_token": "bad-token"})
+        resp = await client.post("/api/auth/refresh", json={"refresh_token": "bad-token"})
 
         assert resp.status_code == 401
         assert resp.headers["www-authenticate"] == "Bearer"
@@ -45,7 +45,7 @@ class TestRefresh:
         )
 
         resp = await client.post(
-            "/auth/refresh",
+            "/api/auth/refresh",
             json={
                 "refresh_token": f"{uuid.uuid4()}:{uuid.uuid4()}",
             },
@@ -54,6 +54,6 @@ class TestRefresh:
         assert resp.status_code == 401
 
     async def test_missing_token_returns_422(self, client):
-        resp = await client.post("/auth/refresh", json={})
+        resp = await client.post("/api/auth/refresh", json={})
 
         assert resp.status_code == 422

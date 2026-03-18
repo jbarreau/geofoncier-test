@@ -21,7 +21,7 @@ PASSWORD = "TestPass123!"
 class TestRegister:
     async def test_register_success(self, auth_client: httpx.AsyncClient) -> None:
         resp = await auth_client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={"email": _unique_email("reg"), "password": PASSWORD},
         )
         assert resp.status_code == 201
@@ -35,10 +35,10 @@ class TestRegister:
     ) -> None:
         email = _unique_email("dup")
         await auth_client.post(
-            "/auth/register", json={"email": email, "password": PASSWORD}
+            "/api/auth/register", json={"email": email, "password": PASSWORD}
         )
         resp = await auth_client.post(
-            "/auth/register", json={"email": email, "password": PASSWORD}
+            "/api/auth/register", json={"email": email, "password": PASSWORD}
         )
         assert resp.status_code == 409
 
@@ -46,7 +46,7 @@ class TestRegister:
         self, auth_client: httpx.AsyncClient
     ) -> None:
         resp = await auth_client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={"email": "not-an-email", "password": PASSWORD},
         )
         assert resp.status_code == 422
@@ -55,7 +55,7 @@ class TestRegister:
         self, auth_client: httpx.AsyncClient
     ) -> None:
         resp = await auth_client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={"email": _unique_email("short"), "password": "abc"},
         )
         assert resp.status_code == 422
@@ -67,10 +67,10 @@ class TestLogin:
     ) -> None:
         email = _unique_email("login")
         await auth_client.post(
-            "/auth/register", json={"email": email, "password": PASSWORD}
+            "/api/auth/register", json={"email": email, "password": PASSWORD}
         )
         resp = await auth_client.post(
-            "/auth/login", json={"email": email, "password": PASSWORD}
+            "/api/auth/login", json={"email": email, "password": PASSWORD}
         )
         assert resp.status_code == 200
         body = resp.json()
@@ -83,10 +83,10 @@ class TestLogin:
     ) -> None:
         email = _unique_email("loginbad")
         await auth_client.post(
-            "/auth/register", json={"email": email, "password": PASSWORD}
+            "/api/auth/register", json={"email": email, "password": PASSWORD}
         )
         resp = await auth_client.post(
-            "/auth/login", json={"email": email, "password": "WrongPass99!"}
+            "/api/auth/login", json={"email": email, "password": "WrongPass99!"}
         )
         assert resp.status_code == 401
 
@@ -94,7 +94,7 @@ class TestLogin:
         self, auth_client: httpx.AsyncClient
     ) -> None:
         resp = await auth_client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": "nobody@example.com", "password": PASSWORD},
         )
         assert resp.status_code == 401
@@ -102,7 +102,7 @@ class TestLogin:
 
 class TestJWKS:
     async def test_jwks_returns_rsa_key(self, auth_client: httpx.AsyncClient) -> None:
-        resp = await auth_client.get("/auth/.well-known/jwks.json")
+        resp = await auth_client.get("/api/auth/.well-known/jwks.json")
         assert resp.status_code == 200
         body = resp.json()
         assert "keys" in body
@@ -119,10 +119,10 @@ class TestRefresh:
     ) -> dict:
         email = _unique_email("refresh")
         await auth_client.post(
-            "/auth/register", json={"email": email, "password": PASSWORD}
+            "/api/auth/register", json={"email": email, "password": PASSWORD}
         )
         resp = await auth_client.post(
-            "/auth/login", json={"email": email, "password": PASSWORD}
+            "/api/auth/login", json={"email": email, "password": PASSWORD}
         )
         assert resp.status_code == 200
         return resp.json()
@@ -132,7 +132,7 @@ class TestRefresh:
     ) -> None:
         tokens = await self._create_user_and_login(auth_client)
         resp = await auth_client.post(
-            "/auth/refresh",
+            "/api/auth/refresh",
             json={"refresh_token": tokens["refresh_token"]},
         )
         assert resp.status_code == 200
@@ -148,12 +148,12 @@ class TestRefresh:
         old_refresh = tokens["refresh_token"]
 
         first = await auth_client.post(
-            "/auth/refresh", json={"refresh_token": old_refresh}
+            "/api/auth/refresh", json={"refresh_token": old_refresh}
         )
         assert first.status_code == 200
 
         second = await auth_client.post(
-            "/auth/refresh", json={"refresh_token": old_refresh}
+            "/api/auth/refresh", json={"refresh_token": old_refresh}
         )
         assert second.status_code == 401
 
@@ -161,7 +161,7 @@ class TestRefresh:
         self, auth_client: httpx.AsyncClient
     ) -> None:
         resp = await auth_client.post(
-            "/auth/refresh", json={"refresh_token": "not-a-valid-token"}
+            "/api/auth/refresh", json={"refresh_token": "not-a-valid-token"}
         )
         assert resp.status_code == 401
 
@@ -170,15 +170,15 @@ class TestLogout:
     async def test_logout_returns_204(self, auth_client: httpx.AsyncClient) -> None:
         email = _unique_email("logout")
         await auth_client.post(
-            "/auth/register", json={"email": email, "password": PASSWORD}
+            "/api/auth/register", json={"email": email, "password": PASSWORD}
         )
         login = await auth_client.post(
-            "/auth/login", json={"email": email, "password": PASSWORD}
+            "/api/auth/login", json={"email": email, "password": PASSWORD}
         )
         tokens = login.json()
 
         resp = await auth_client.post(
-            "/auth/logout",
+            "/api/auth/logout",
             json={
                 "access_token": tokens["access_token"],
                 "refresh_token": tokens["refresh_token"],

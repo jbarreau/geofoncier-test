@@ -16,7 +16,7 @@ from app.services.role_service import (
     update_role,
 )
 
-router = APIRouter(prefix="/roles", tags=["roles"])
+router = APIRouter(prefix="/api/roles", tags=["roles"])
 
 _MANAGE = Depends(require_permission("users:manage"))
 

@@ -53,7 +53,7 @@ class TestListRoles:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.get("/roles")
+        resp = await client.get("/api/roles")
 
         _clear_auth()
         assert resp.status_code == 200
@@ -62,14 +62,14 @@ class TestListRoles:
         assert data[0]["name"] == role.name
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.get("/roles")
+        resp = await client.get("/api/roles")
         assert resp.status_code == 401
 
     async def test_403_wrong_permission(self, client, mocker) -> None:
         mocker.patch("app.routes.roles.list_roles", AsyncMock(return_value=[]))
         _set_auth(["tasks:read"])
 
-        resp = await client.get("/roles")
+        resp = await client.get("/api/roles")
 
         _clear_auth()
         assert resp.status_code == 403
@@ -89,7 +89,7 @@ class TestCreateRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post("/roles", json={"name": "admin"})
+        resp = await client.post("/api/roles", json={"name": "admin"})
 
         _clear_auth()
         assert resp.status_code == 201
@@ -102,7 +102,7 @@ class TestCreateRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post("/roles", json={"name": "viewer"})
+        resp = await client.post("/api/roles", json={"name": "viewer"})
 
         _clear_auth()
         assert resp.status_code == 409
@@ -110,13 +110,13 @@ class TestCreateRole:
     async def test_422_missing_name(self, client) -> None:
         _set_auth(["users:manage"])
 
-        resp = await client.post("/roles", json={"description": "No name"})
+        resp = await client.post("/api/roles", json={"description": "No name"})
 
         _clear_auth()
         assert resp.status_code == 422
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.post("/roles", json={"name": "test"})
+        resp = await client.post("/api/roles", json={"name": "test"})
         assert resp.status_code == 401
 
 
@@ -134,7 +134,7 @@ class TestGetRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.get(f"/roles/{role.id}")
+        resp = await client.get(f"/api/roles/{role.id}")
 
         _clear_auth()
         assert resp.status_code == 200
@@ -147,13 +147,13 @@ class TestGetRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.get(f"/roles/{uuid.uuid4()}")
+        resp = await client.get(f"/api/roles/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 404
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.get(f"/roles/{uuid.uuid4()}")
+        resp = await client.get(f"/api/roles/{uuid.uuid4()}")
         assert resp.status_code == 401
 
 
@@ -171,7 +171,7 @@ class TestUpdateRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.put(f"/roles/{role.id}", json={"name": "updated"})
+        resp = await client.put(f"/api/roles/{role.id}", json={"name": "updated"})
 
         _clear_auth()
         assert resp.status_code == 200
@@ -184,7 +184,7 @@ class TestUpdateRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.put(f"/roles/{uuid.uuid4()}", json={"name": "x"})
+        resp = await client.put(f"/api/roles/{uuid.uuid4()}", json={"name": "x"})
 
         _clear_auth()
         assert resp.status_code == 404
@@ -196,13 +196,13 @@ class TestUpdateRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.put(f"/roles/{uuid.uuid4()}", json={"name": "viewer"})
+        resp = await client.put(f"/api/roles/{uuid.uuid4()}", json={"name": "viewer"})
 
         _clear_auth()
         assert resp.status_code == 409
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.put(f"/roles/{uuid.uuid4()}", json={"name": "x"})
+        resp = await client.put(f"/api/roles/{uuid.uuid4()}", json={"name": "x"})
         assert resp.status_code == 401
 
 
@@ -219,7 +219,7 @@ class TestDeleteRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.delete(f"/roles/{uuid.uuid4()}")
+        resp = await client.delete(f"/api/roles/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 204
@@ -231,13 +231,13 @@ class TestDeleteRole:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.delete(f"/roles/{uuid.uuid4()}")
+        resp = await client.delete(f"/api/roles/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 404
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.delete(f"/roles/{uuid.uuid4()}")
+        resp = await client.delete(f"/api/roles/{uuid.uuid4()}")
         assert resp.status_code == 401
 
 
@@ -255,7 +255,7 @@ class TestAssignPermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post(f"/roles/{role.id}/permissions/{uuid.uuid4()}")
+        resp = await client.post(f"/api/roles/{role.id}/permissions/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 200
@@ -267,7 +267,7 @@ class TestAssignPermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post(f"/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.post(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 404
@@ -279,7 +279,7 @@ class TestAssignPermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post(f"/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.post(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 404
@@ -291,13 +291,13 @@ class TestAssignPermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.post(f"/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.post(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 409
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.post(f"/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.post(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
         assert resp.status_code == 401
 
 
@@ -315,7 +315,7 @@ class TestRemovePermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.delete(f"/roles/{role.id}/permissions/{uuid.uuid4()}")
+        resp = await client.delete(f"/api/roles/{role.id}/permissions/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 200
@@ -327,7 +327,7 @@ class TestRemovePermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.delete(f"/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.delete(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 404
@@ -339,11 +339,11 @@ class TestRemovePermission:
         )
         _set_auth(["users:manage"])
 
-        resp = await client.delete(f"/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.delete(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
 
         _clear_auth()
         assert resp.status_code == 404
 
     async def test_401_without_token(self, client) -> None:
-        resp = await client.delete(f"/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
+        resp = await client.delete(f"/api/roles/{uuid.uuid4()}/permissions/{uuid.uuid4()}")
         assert resp.status_code == 401

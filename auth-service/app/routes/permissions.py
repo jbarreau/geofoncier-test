@@ -19,7 +19,7 @@ from app.services.permission_service import (
     update_permission,
 )
 
-router = APIRouter(prefix="/permissions", tags=["permissions"])
+router = APIRouter(prefix="/api/permissions", tags=["permissions"])
 
 _MANAGE = Depends(require_permission("users:manage"))
 

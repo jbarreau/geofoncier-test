@@ -11,13 +11,13 @@ from .helpers import make_fake_task, make_mock_db_rows, make_token
 
 class TestOverdue:
     async def test_no_auth_returns_401(self, client):
-        resp = await client.get("/analytics/overdue")
+        resp = await client.get("/api/analytics/overdue")
         assert resp.status_code == 401
 
     async def test_missing_permission_returns_403(self, client, rsa_key_pair):
         token = make_token(rsa_key_pair["private_key"], permissions=["task:read"])
         resp = await client.get(
-            "/analytics/overdue", headers={"Authorization": f"Bearer {token}"}
+            "/api/analytics/overdue", headers={"Authorization": f"Bearer {token}"}
         )
         assert resp.status_code == 403
 
@@ -34,7 +34,7 @@ class TestOverdue:
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
-            "/analytics/overdue",
+            "/api/analytics/overdue",
             headers={"Authorization": f"Bearer {token}"},
         )
         app.dependency_overrides.pop(get_db, None)
@@ -52,7 +52,7 @@ class TestOverdue:
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
-            "/analytics/overdue",
+            "/api/analytics/overdue",
             headers={"Authorization": f"Bearer {token}"},
         )
         app.dependency_overrides.pop(get_db, None)
@@ -68,7 +68,7 @@ class TestOverdue:
 
         app.dependency_overrides[get_db] = lambda: mock_db
         resp = await client.get(
-            "/analytics/overdue?limit=10",
+            "/api/analytics/overdue?limit=10",
             headers={"Authorization": f"Bearer {token}"},
         )
         app.dependency_overrides.pop(get_db, None)
@@ -82,7 +82,7 @@ class TestOverdue:
         # get_db overridden so FastAPI can reach param validation without a real DB
         app.dependency_overrides[get_db] = lambda: make_mock_db_rows([])
         resp = await client.get(
-            "/analytics/overdue?limit=9999",
+            "/api/analytics/overdue?limit=9999",
             headers={"Authorization": f"Bearer {token}"},
         )
         app.dependency_overrides.pop(get_db, None)

@@ -1,6 +1,6 @@
 class TestJwks:
     async def test_returns_valid_rsa_jwks(self, client):
-        resp = await client.get("/auth/.well-known/jwks.json")
+        resp = await client.get("/api/auth/.well-known/jwks.json")
 
         assert resp.status_code == 200
         data = resp.json()

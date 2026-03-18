@@ -9,7 +9,7 @@ from app.services import task_service
 from geofoncier_shared.fastapi.middleware.jwt import require_permission
 from geofoncier_shared.fastapi.schemas.auth import CurrentUser
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
 
 @router.post("", status_code=201, response_model=TaskResponse)
