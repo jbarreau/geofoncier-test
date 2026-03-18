@@ -4,8 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..exceptions import PermissionNameConflictError, PermissionNotFoundError
-from ..models import Permission
+from app.exceptions import PermissionNameConflictError, PermissionNotFoundError
+from app.models import Permission
 
 
 async def list_permissions(db: AsyncSession) -> list[Permission]:

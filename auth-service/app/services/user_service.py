@@ -5,13 +5,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from ..exceptions import (
+from app.exceptions import (
     RoleNotFoundError,
     UserNotFoundError,
     UserRoleAlreadyAssignedError,
     UserRoleNotFoundError,
 )
-from ..models import Role, RolePermission, User, UserRole
+from app.models import Role, RolePermission, User, UserRole
 
 
 async def _load_user_with_roles(db: AsyncSession, user_id: uuid.UUID) -> User:

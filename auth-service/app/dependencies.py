@@ -2,8 +2,8 @@ from fastapi import Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import jwt
 
-from .exceptions import InsufficientPermissionsError, InvalidTokenError
-from .services.token_service import decode_access_token
+from app.exceptions import InsufficientPermissionsError, InvalidTokenError
+from app.services.token_service import decode_access_token
 
 _bearer = HTTPBearer(auto_error=False)
 
