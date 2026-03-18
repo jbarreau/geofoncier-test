@@ -185,18 +185,35 @@ services:
       - task-service
       - analytics-service
 
-  # Optional: insert ~20 fake users for development.
-  # Run once after the stack is up:
-  #   docker compose --profile mock run --rm mock-data
-  mock-data:
+  # Optional mock data — run once after the stack is up:
+  #   docker compose --profile mock run --rm mock-users
+  #   docker compose --profile mock run --rm mock-tasks
+  mock-users:
     build:
       context: .
       dockerfile: backend/auth-service/Dockerfile
     profiles:
       - mock
-    command: python /scripts/mock_data.py
+    command: python /scripts/mock_users.py
     environment:
       DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-auth/geofoncier_auth
+    volumes:
+      - ./scripts:/scripts
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+
+  # mock-tasks reads user IDs from postgres-auth and writes tasks to postgres-tasks.
+  mock-tasks:
+    build:
+      context: .
+      dockerfile: backend/task-service/Dockerfile
+    profiles:
+      - mock
+    command: python /scripts/mock_tasks.py
+    environment:
+      AUTH_DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-auth/geofoncier_auth
+      DATABASE_URL: postgresql+asyncpg://geofoncier:geofoncier@postgres-tasks/geofoncier_tasks
     volumes:
       - ./scripts:/scripts
     depends_on:
