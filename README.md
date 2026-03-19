@@ -1,8 +1,8 @@
-# Géofoncier
-
 [![CI](https://github.com/jbarreau/geofoncier-test/actions/workflows/ci.yml/badge.svg)](https://github.com/jbarreau/geofoncier-test/actions/workflows/ci.yml)
 [![CI Frontend](https://github.com/jbarreau/geofoncier-test/actions/workflows/ci-frontend.yml/badge.svg)](https://github.com/jbarreau/geofoncier-test/actions/workflows/ci-frontend.yml)
 [![codecov](https://codecov.io/gh/jbarreau/geofoncier-test/branch/main/graph/badge.svg)](https://codecov.io/gh/jbarreau/geofoncier-test)
+
+# Géofoncier
 
 Task management application with RBAC, JWT RS256 authentication, and three independent FastAPI microservices.
 
@@ -51,9 +51,9 @@ Re-running the commands is safe — already-existing records are skipped.
 
 | Email | Password | Role |
 |---|---|---|
-| admin@geofoncier.local | admin123 | admin |
-| user@geofoncier.local | user123 | user |
-| viewer@geofoncier.local | viewer123 | viewer |
+| <admin@geofoncier.local> | admin123 | admin |
+| <user@geofoncier.local> | user123 | user |
+| <viewer@geofoncier.local> | viewer123 | viewer |
 
 ---
 
@@ -61,10 +61,10 @@ Re-running the commands is safe — already-existing records are skipped.
 
 | Service | URL |
 |---|---|
-| Frontend | http://localhost:80 |
-| auth-service | http://localhost:8000 |
-| task-service | http://localhost:8001 |
-| analytics-service | http://localhost:8002 |
+| Frontend | <http://localhost:80> |
+| auth-service | <http://localhost:8000> |
+| task-service | <http://localhost:8001> |
+| analytics-service | <http://localhost:8002> |
 
 ---
 
@@ -219,6 +219,7 @@ Three isolated FastAPI services with separate concerns:
 - **analytics-service** (`:8002`) — read-only aggregates, connects to `postgres-tasks` as `analytics_ro`
 
 Key design decisions:
+
 - No cross-schema foreign keys — data integrity enforced at the application layer
 - RS256 asymmetric JWT — private key in auth-service only; public key distributed via `/.well-known/jwks.json`
 - Redis blacklist for immediate token revocation without waiting for JWT expiry
@@ -229,6 +230,7 @@ Key design decisions:
 ## Further reading
 
 See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for:
+
 - Common development commands (migrations, tests, linting)
 - Testing strategy
 - Environment variables reference
