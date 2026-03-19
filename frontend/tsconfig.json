@@ -1,16 +1,9 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "types": ["vitest/globals"]
-  },
+  "files": [],
   "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
+    { "path": "./shell-app" },
+    { "path": "./auth-front" },
+    { "path": "./task-front" },
+    { "path": "./analytics-front" }
   ]
 }
