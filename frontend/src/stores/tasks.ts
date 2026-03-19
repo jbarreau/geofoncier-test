@@ -13,7 +13,7 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       tasks.value = await tasksApi.list()
     } catch {
-      error.value = 'Impossible de charger les tâches.'
+      error.value = 'Failed to load tasks.'
     } finally {
       loading.value = false
     }
@@ -25,7 +25,7 @@ export const useTasksStore = defineStore('tasks', () => {
       const task = await tasksApi.create(body)
       tasks.value.unshift(task)
     } catch {
-      error.value = 'Impossible de créer la tâche.'
+      error.value = 'Failed to create task.'
       throw new Error('create failed')
     }
   }
@@ -37,7 +37,7 @@ export const useTasksStore = defineStore('tasks', () => {
       const idx = tasks.value.findIndex((t) => t.id === id)
       if (idx !== -1) tasks.value[idx] = updated
     } catch {
-      error.value = 'Impossible de modifier la tâche.'
+      error.value = 'Failed to update task.'
       throw new Error('update failed')
     }
   }
@@ -48,7 +48,7 @@ export const useTasksStore = defineStore('tasks', () => {
       await tasksApi.remove(id)
       tasks.value = tasks.value.filter((t) => t.id !== id)
     } catch {
-      error.value = 'Impossible de supprimer la tâche.'
+      error.value = 'Failed to delete task.'
       throw new Error('remove failed')
     }
   }

@@ -34,6 +34,8 @@ htmlcov/
 # IDE
 .idea/
 .vscode/
+!.vscode/launch.json
+!.vscode/extensions.json
 *.swp
 
 # OS

@@ -33,26 +33,26 @@ beforeEach(async () => {
 })
 
 describe('App.vue — navigation bar', () => {
-  it('shows Connexion link when not authenticated', () => {
+  it('shows Sign in link when not authenticated', () => {
     const wrapper = mountApp()
-    expect(wrapper.text()).toContain('Connexion')
-    expect(wrapper.text()).not.toContain('Déconnexion')
+    expect(wrapper.text()).toContain('Sign in')
+    expect(wrapper.text()).not.toContain('Sign out')
   })
 
   it('does not show admin links when not authenticated', () => {
     const wrapper = mountApp()
-    expect(wrapper.text()).not.toContain('Utilisateurs')
-    expect(wrapper.text()).not.toContain('Rôles')
+    expect(wrapper.text()).not.toContain('Users')
+    expect(wrapper.text()).not.toContain('Roles')
     expect(wrapper.text()).not.toContain('Permissions')
   })
 
-  it('shows Déconnexion button when authenticated', () => {
+  it('shows Sign out button when authenticated', () => {
     const wrapper = mountApp((store) => {
       store.accessToken = 'tok'
       store.email = 'user@test.com'
     })
-    expect(wrapper.text()).toContain('Déconnexion')
-    expect(wrapper.text()).not.toContain('Connexion')
+    expect(wrapper.text()).toContain('Sign out')
+    expect(wrapper.text()).not.toContain('Sign in')
   })
 
   it('shows email when authenticated', () => {
@@ -68,8 +68,8 @@ describe('App.vue — navigation bar', () => {
       store.accessToken = 'tok'
       store.permissions = ['users:manage']
     })
-    expect(wrapper.text()).toContain('Utilisateurs')
-    expect(wrapper.text()).toContain('Rôles')
+    expect(wrapper.text()).toContain('Users')
+    expect(wrapper.text()).toContain('Roles')
     expect(wrapper.text()).toContain('Permissions')
   })
 
@@ -78,8 +78,8 @@ describe('App.vue — navigation bar', () => {
       store.accessToken = 'tok'
       store.permissions = ['tasks:read']
     })
-    expect(wrapper.text()).not.toContain('Utilisateurs')
-    expect(wrapper.text()).not.toContain('Rôles')
+    expect(wrapper.text()).not.toContain('Users')
+    expect(wrapper.text()).not.toContain('Roles')
     expect(wrapper.text()).not.toContain('Permissions')
   })
 
