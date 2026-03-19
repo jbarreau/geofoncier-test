@@ -1,12 +1,43 @@
 {
-  "name": "geofoncier-frontend-workspace",
+  "name": "geofoncier-frontend",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.ts,.tsx --max-warnings 0",
+    "type-check": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
     "dev:all": "concurrently -n shell,auth,tasks,analytics -c cyan,green,yellow,magenta \"pnpm --filter shell-app dev\" \"pnpm --filter auth-front dev:preview\" \"pnpm --filter task-front dev:preview\" \"pnpm --filter analytics-front dev:preview\"",
     "build:all": "pnpm --filter auth-front build && pnpm --filter task-front build && pnpm --filter analytics-front build && pnpm --filter shell-app build"
   },
+  "dependencies": {
+    "@picocss/pico": "^2.0.6",
+    "apexcharts": "^5.10.4",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.0",
+    "vue-router": "^4.3.0",
+    "vue3-apexcharts": "^1.11.1"
+  },
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "@pinia/testing": "^0.1.7",
+    "@types/node": "^20.0.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vue/eslint-config-typescript": "^13.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "@vue/tsconfig": "^0.5.0",
+    "concurrently": "^8.2.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "jsdom": "^24.0.0",
+    "typescript": "~5.4.0",
+    "vite": "^5.2.0",
+    "vitest": "^1.6.0",
+    "vue-tsc": "^2.0.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": ["esbuild", "vue-demi"]
