@@ -1,5 +1,9 @@
 # README.md
 
+[![CI](https://github.com/jbarreau/geofoncier-test/actions/workflows/ci.yml/badge.svg)](https://github.com/jbarreau/geofoncier-test/actions/workflows/ci.yml)
+[![CI Frontend](https://github.com/jbarreau/geofoncier-test/actions/workflows/ci-frontend.yml/badge.svg)](https://github.com/jbarreau/geofoncier-test/actions/workflows/ci-frontend.yml)
+[![codecov](https://codecov.io/gh/jbarreau/geofoncier-test/branch/main/graph/badge.svg)](https://codecov.io/gh/jbarreau/geofoncier-test)
+
 ## Quick Start
 
 ### Prerequisites
