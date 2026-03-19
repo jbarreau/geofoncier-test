@@ -104,13 +104,13 @@ describe('AnalyticsView — data display', () => {
     // by-user section rendered with v-if="auth.hasPermission('analytics:admin')"
     const headers = wrapper.findAll('article header strong')
     const texts = headers.map(h => h.text())
-    expect(texts).not.toContain('Tâches par utilisateur')
+    expect(texts).not.toContain('Tasks by user')
   })
 
   it('shows by-user chart for analytics:admin user', async () => {
     const wrapper = mountAnalytics(['analytics:read', 'analytics:admin', 'users:manage'])
     await flushPromises()
-    expect(wrapper.text()).toContain('Tâches par utilisateur')
+    expect(wrapper.text()).toContain('Tasks by user')
   })
 })
 
@@ -124,7 +124,7 @@ describe('AnalyticsView — error handling', () => {
     })
     const wrapper = mountAnalytics()
     await flushPromises()
-    expect(wrapper.text()).toContain('Impossible de charger les données')
+    expect(wrapper.text()).toContain('Failed to load data')
   })
 
   it('shows empty state when no overdue tasks', async () => {
@@ -136,6 +136,6 @@ describe('AnalyticsView — error handling', () => {
     })
     const wrapper = mountAnalytics()
     await flushPromises()
-    expect(wrapper.text()).toContain('Aucune tâche en retard')
+    expect(wrapper.text()).toContain('No overdue tasks')
   })
 })

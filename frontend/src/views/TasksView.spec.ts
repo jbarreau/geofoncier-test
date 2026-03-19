@@ -17,7 +17,7 @@ vi.mock('../api/tasks', () => ({
 
 const mockTask: Task = {
   id: 'task-1',
-  title: 'Vérifier les limites',
+  title: 'Verify boundary markers',
   description: null,
   status: 'todo',
   owner_id: 'owner-id',
@@ -55,22 +55,22 @@ describe('TasksView', () => {
     expect(tasksApi.list).toHaveBeenCalledOnce()
   })
 
-  it('shows "Aucune tâche" when list is empty', async () => {
+  it('shows "No tasks found" when list is empty', async () => {
     vi.mocked(tasksApi.list).mockResolvedValue([])
     const wrapper = mountWith(['tasks:read'])
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Aucune tâche')
+    expect(wrapper.text()).toContain('No tasks found')
   })
 
-  it('shows "Nouvelle tâche" button for user with tasks:create', async () => {
+  it('shows "New task" button for user with tasks:create', async () => {
     const wrapper = mountWith(['tasks:create', 'tasks:read'])
     await flushPromises()
 
     expect(wrapper.find('[data-testid="btn-create"]').exists()).toBe(true)
   })
 
-  it('hides "Nouvelle tâche" button for viewer without tasks:create', async () => {
+  it('hides "New task" button for viewer without tasks:create', async () => {
     const wrapper = mountWith(['tasks:read'], ['viewer'])
     await flushPromises()
 

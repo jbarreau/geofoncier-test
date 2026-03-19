@@ -16,7 +16,7 @@ async function load() {
     users.value = fetchedUsers
     roles.value = fetchedRoles
   } catch {
-    error.value = 'Impossible de charger les données.'
+    error.value = 'Failed to load data.'
   } finally {
     loading.value = false
   }
@@ -30,7 +30,7 @@ async function toggleActive(user: User) {
     const idx = users.value.findIndex((u) => u.id === user.id)
     if (idx !== -1) users.value[idx] = updated
   } catch {
-    error.value = "Impossible de modifier l'utilisateur."
+    error.value = 'Failed to update user.'
   }
 }
 
@@ -41,7 +41,7 @@ async function assignRole(user: User, roleId: string) {
     const idx = users.value.findIndex((u) => u.id === user.id)
     if (idx !== -1) users.value[idx] = updated
   } catch {
-    error.value = "Impossible d'assigner le rôle."
+    error.value = 'Failed to assign role.'
   }
 }
 
@@ -51,7 +51,7 @@ async function removeRole(user: User, roleId: string) {
     const idx = users.value.findIndex((u) => u.id === user.id)
     if (idx !== -1) users.value[idx] = updated
   } catch {
-    error.value = 'Impossible de retirer le rôle.'
+    error.value = 'Failed to remove role.'
   }
 }
 
@@ -64,8 +64,8 @@ function unassignedRoles(user: User): Role[] {
 <template>
   <main class="container">
     <hgroup>
-      <h2>Utilisateurs</h2>
-      <p>Gestion des comptes et attribution des rôles</p>
+      <h2>Users</h2>
+      <p>Account management and role assignment</p>
     </hgroup>
 
     <p v-if="error" role="alert" style="color: var(--pico-color-red-500)">{{ error }}</p>
@@ -77,9 +77,9 @@ function unassignedRoles(user: User): Role[] {
         <thead>
           <tr>
             <th>Email</th>
-            <th>Statut</th>
-            <th>Rôles</th>
-            <th>Ajouter un rôle</th>
+            <th>Status</th>
+            <th>Roles</th>
+            <th>Add a role</th>
           </tr>
         </thead>
         <tbody>
@@ -91,12 +91,12 @@ function unassignedRoles(user: User): Role[] {
                 style="margin: 0; padding: 0.25rem 0.75rem; font-size: 0.85rem"
                 @click="toggleActive(user)"
               >
-                {{ user.is_active ? 'Actif' : 'Inactif' }}
+                {{ user.is_active ? 'Active' : 'Inactive' }}
               </button>
             </td>
             <td>
               <span v-if="user.roles.length === 0" style="color: var(--pico-muted-color)">
-                Aucun
+                None
               </span>
               <span v-for="role in user.roles" :key="role.id" style="margin-right: 0.5rem">
                 <kbd style="cursor: pointer" @click="removeRole(user, role.id)"
@@ -118,7 +118,7 @@ function unassignedRoles(user: User): Role[] {
                   }
                 "
               >
-                <option value="">— Assigner —</option>
+                <option value="">— Assign —</option>
                 <option v-for="role in unassignedRoles(user)" :key="role.id" :value="role.id">
                   {{ role.name }}
                 </option>
@@ -129,7 +129,7 @@ function unassignedRoles(user: User): Role[] {
         </tbody>
       </table>
       <p v-if="users.length === 0" style="text-align: center; color: var(--pico-muted-color)">
-        Aucun utilisateur.
+        No users found.
       </p>
     </template>
   </main>

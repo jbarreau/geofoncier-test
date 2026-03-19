@@ -53,7 +53,7 @@ describe('useTasksStore', () => {
     await store.fetchAll()
 
     expect(store.tasks).toEqual([])
-    expect(store.error).toBe('Impossible de charger les tâches.')
+    expect(store.error).toBe('Failed to load tasks.')
   })
 
   it('create prepends the new task to the list', async () => {

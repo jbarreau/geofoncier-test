@@ -17,7 +17,7 @@ async function submit() {
     await authApi.register(email.value, password.value)
     await router.push({ name: 'login' })
   } catch {
-    error.value = 'Impossible de créer le compte. Cet email est peut-être déjà utilisé.'
+    error.value = 'Failed to create account. This email may already be in use.'
   } finally {
     loading.value = false
   }
@@ -28,8 +28,8 @@ async function submit() {
   <main class="container">
     <article style="max-width: 400px; margin: 4rem auto">
       <hgroup>
-        <h2>Créer un compte</h2>
-        <p>Géofoncier — inscription</p>
+        <h2>Create an account</h2>
+        <p>Géofoncier — sign up</p>
       </hgroup>
       <form @submit.prevent="submit">
         <label>
@@ -37,7 +37,7 @@ async function submit() {
           <input v-model="email" type="email" required autocomplete="username" />
         </label>
         <label>
-          Mot de passe
+          Password
           <input
             v-model="password"
             type="password"
@@ -46,13 +46,13 @@ async function submit() {
             maxlength="128"
             autocomplete="new-password"
           />
-          <small>Minimum 8 caractères.</small>
+          <small>Minimum 8 characters.</small>
         </label>
         <p v-if="error" role="alert" style="color: var(--pico-color-red-500)">{{ error }}</p>
-        <button type="submit" :aria-busy="loading">Créer le compte</button>
+        <button type="submit" :aria-busy="loading">Create account</button>
       </form>
       <footer>
-        <small>Déjà un compte ? <RouterLink to="/login">Se connecter</RouterLink></small>
+        <small>Already have an account? <RouterLink to="/login">Sign in</RouterLink></small>
       </footer>
     </article>
   </main>

@@ -33,7 +33,7 @@ htmlcov/
 
 # IDE
 .idea/
-.vscode/
+# .vscode/ is committed (contains shared launch configs, extensions, and settings)
 *.swp
 
 # OS

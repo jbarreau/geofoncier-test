@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    // Python
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "ms-python.mypy-type-checker",
+    "ms-python.debugpy",
+    // Vue / TypeScript
+    "Vue.volar",
+    "dbaeumer.vscode-eslint",
+    // Config files
+    "tamasfe.even-better-toml",
+    "redhat.vscode-yaml",
+    // Docker
+    "ms-azuretools.vscode-docker",
+    // Quality of life
+    "usernamehw.errorlens",
+    "streetsidesoftware.code-spell-checker",
+    "editorconfig.editorconfig"
+  ]
+}

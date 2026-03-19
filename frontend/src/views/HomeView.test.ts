@@ -34,7 +34,7 @@ describe('HomeView', () => {
   it('shows login prompt when not authenticated', () => {
     const wrapper = mountHome()
     expect(wrapper.find('.not-authenticated').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Connexion requise')
+    expect(wrapper.text()).toContain('Login required')
   })
 
   it('shows welcome message when authenticated', () => {
@@ -42,19 +42,19 @@ describe('HomeView', () => {
       store.accessToken = 'tok'
       store.email = 'admin@example.com'
     })
-    expect(wrapper.text()).toContain('Bienvenue')
+    expect(wrapper.text()).toContain('Welcome')
     expect(wrapper.text()).toContain('admin@example.com')
     expect(wrapper.find('.not-authenticated').exists()).toBe(false)
   })
 
-  it('shows "Accès limité" when authenticated with no relevant permissions', () => {
+  it('shows "Limited access" when authenticated with no relevant permissions', () => {
     const wrapper = mountHome((store) => {
       store.accessToken = 'tok'
       store.email = 'user@test.com'
       store.permissions = []
     })
     expect(wrapper.find('.grid').exists()).toBe(false)
-    expect(wrapper.text()).toContain('Accès limité')
+    expect(wrapper.text()).toContain('Limited access')
   })
 
   it('shows tasks card grid when user has tasks:read', () => {
@@ -63,7 +63,7 @@ describe('HomeView', () => {
       store.permissions = ['tasks:read']
     })
     expect(wrapper.find('.grid').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Tâches')
+    expect(wrapper.text()).toContain('Tasks')
   })
 
   it('shows admin cards grid when user has users:manage', () => {
@@ -72,8 +72,8 @@ describe('HomeView', () => {
       store.permissions = ['users:manage']
     })
     expect(wrapper.find('.grid').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Utilisateurs')
-    expect(wrapper.text()).toContain('Rôles')
+    expect(wrapper.text()).toContain('Users')
+    expect(wrapper.text()).toContain('Roles')
     expect(wrapper.text()).toContain('Permissions')
   })
 
@@ -83,8 +83,8 @@ describe('HomeView', () => {
       store.permissions = ['tasks:read', 'users:manage']
     })
     expect(wrapper.find('.grid').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Tâches')
-    expect(wrapper.text()).toContain('Utilisateurs')
+    expect(wrapper.text()).toContain('Tasks')
+    expect(wrapper.text()).toContain('Users')
   })
 
   it('shows analytics card when user has analytics:read', () => {
@@ -111,7 +111,7 @@ describe('HomeView', () => {
     })
     expect(wrapper.find('.grid').exists()).toBe(true)
     expect(wrapper.text()).toContain('Analytics')
-    expect(wrapper.text()).toContain('Tâches')
-    expect(wrapper.text()).toContain('Utilisateurs')
+    expect(wrapper.text()).toContain('Tasks')
+    expect(wrapper.text()).toContain('Users')
   })
 })

@@ -17,9 +17,9 @@ const filteredTasks = computed(() => {
 })
 
 const statusLabel: Record<Task['status'], string> = {
-  todo: 'À faire',
-  doing: 'En cours',
-  done: 'Terminée',
+  todo: 'To do',
+  doing: 'In progress',
+  done: 'Done',
 }
 
 // --- Modal ---
@@ -78,7 +78,7 @@ async function submitForm() {
 }
 
 async function deleteTask(task: Task) {
-  if (!confirm(`Supprimer « ${task.title} » ?`)) return
+  if (!confirm(`Delete task "${task.title}"?`)) return
   await tasksStore.remove(task.id)
 }
 
@@ -88,8 +88,8 @@ onMounted(() => tasksStore.fetchAll())
 <template>
   <main class="container">
     <hgroup>
-      <h2>Tâches</h2>
-      <p>Gestion des tâches</p>
+      <h2>Tasks</h2>
+      <p>Task management</p>
     </hgroup>
 
     <p v-if="tasksStore.error" role="alert" style="color: var(--pico-color-red-500)">
@@ -100,7 +100,7 @@ onMounted(() => tasksStore.fetchAll())
     <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap">
       <div role="group">
         <button
-          v-for="[value, label] in [['all', 'Toutes'], ['todo', 'À faire'], ['doing', 'En cours'], ['done', 'Terminées']]"
+          v-for="[value, label] in [['all', 'All'], ['todo', 'To do'], ['doing', 'In progress'], ['done', 'Done']]"
           :key="value"
           :class="{ secondary: statusFilter !== value }"
           style="margin: 0"
@@ -116,7 +116,7 @@ onMounted(() => tasksStore.fetchAll())
         style="margin: 0 0 0 auto"
         @click="openCreate"
       >
-        + Nouvelle tâche
+        + New task
       </button>
     </div>
 
@@ -125,15 +125,15 @@ onMounted(() => tasksStore.fetchAll())
 
     <template v-else>
       <p v-if="filteredTasks.length === 0" style="color: var(--pico-muted-color)">
-        Aucune tâche.
+        No tasks found.
       </p>
 
       <table v-else>
         <thead>
           <tr>
-            <th>Titre</th>
-            <th>Statut</th>
-            <th>Échéance</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Due date</th>
             <th
               v-if="auth.hasPermission('tasks:update') || auth.hasPermission('tasks:delete')"
             >
@@ -154,7 +154,7 @@ onMounted(() => tasksStore.fetchAll())
             <td>
               {{
                 task.due_date
-                  ? new Date(task.due_date).toLocaleDateString('fr-FR')
+                  ? new Date(task.due_date).toLocaleDateString('en-GB')
                   : '—'
               }}
             </td>
@@ -169,7 +169,7 @@ onMounted(() => tasksStore.fetchAll())
                   style="margin: 0"
                   @click="openEdit(task)"
                 >
-                  Modifier
+                  Edit
                 </button>
                 <button
                   v-if="auth.hasPermission('tasks:delete')"
@@ -178,7 +178,7 @@ onMounted(() => tasksStore.fetchAll())
                   style="margin: 0; color: var(--pico-color-red-500)"
                   @click="deleteTask(task)"
                 >
-                  Supprimer
+                  Delete
                 </button>
               </div>
             </td>
@@ -191,18 +191,18 @@ onMounted(() => tasksStore.fetchAll())
     <dialog :open="showModal" @click.self="closeModal">
       <article>
         <header>
-          <button aria-label="Fermer" rel="prev" @click="closeModal"></button>
-          <h3>{{ editingTask ? 'Modifier la tâche' : 'Nouvelle tâche' }}</h3>
+          <button aria-label="Close" rel="prev" @click="closeModal"></button>
+          <h3>{{ editingTask ? 'Edit task' : 'New task' }}</h3>
         </header>
 
         <form @submit.prevent="submitForm">
           <label>
-            Titre *
+            Title *
             <input
               v-model="formData.title"
               type="text"
               required
-              placeholder="Titre de la tâche"
+              placeholder="Task title"
               autofocus
             />
           </label>
@@ -211,29 +211,29 @@ onMounted(() => tasksStore.fetchAll())
             Description
             <textarea
               v-model="formData.description"
-              placeholder="Description (optionnelle)"
+              placeholder="Description (optional)"
               rows="3"
             ></textarea>
           </label>
 
           <label>
-            Statut
+            Status
             <select v-model="formData.status">
-              <option value="todo">À faire</option>
-              <option value="doing">En cours</option>
-              <option value="done">Terminée</option>
+              <option value="todo">To do</option>
+              <option value="doing">In progress</option>
+              <option value="done">Done</option>
             </select>
           </label>
 
           <label>
-            Date d'échéance
+            Due date
             <input v-model="formData.due_date" type="datetime-local" />
           </label>
 
           <footer>
-            <button type="button" class="secondary" @click="closeModal">Annuler</button>
+            <button type="button" class="secondary" @click="closeModal">Cancel</button>
             <button type="submit">
-              {{ editingTask ? 'Enregistrer' : 'Créer' }}
+              {{ editingTask ? 'Save' : 'Create' }}
             </button>
           </footer>
         </form>

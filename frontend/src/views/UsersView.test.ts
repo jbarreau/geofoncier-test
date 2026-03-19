@@ -52,7 +52,7 @@ describe('UsersView', () => {
     await flushPromises()
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Impossible de charger les données')
+    expect(wrapper.text()).toContain('Failed to load data')
   })
 
   it('shows empty state when no users', async () => {
@@ -61,7 +61,7 @@ describe('UsersView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Aucun utilisateur')
+    expect(wrapper.text()).toContain('No users found')
   })
 
   it('toggleActive calls usersApi.update with inverted is_active', async () => {

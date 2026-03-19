@@ -26,16 +26,16 @@ async function logout() {
     </ul>
     <ul>
       <li v-if="auth.isAuthenticated && auth.hasPermission('tasks:read')">
-        <RouterLink to="/tasks">Tâches</RouterLink>
+        <RouterLink to="/tasks">Tasks</RouterLink>
       </li>
       <li v-if="auth.isAuthenticated && auth.hasPermission('analytics:read')">
         <RouterLink to="/analytics">Analytics</RouterLink>
       </li>
       <li v-if="auth.isAuthenticated && auth.hasPermission('users:manage')">
-        <RouterLink to="/users">Utilisateurs</RouterLink>
+        <RouterLink to="/users">Users</RouterLink>
       </li>
       <li v-if="auth.isAuthenticated && auth.hasPermission('users:manage')">
-        <RouterLink to="/roles">Rôles</RouterLink>
+        <RouterLink to="/roles">Roles</RouterLink>
       </li>
       <li v-if="auth.isAuthenticated && auth.hasPermission('users:manage')">
         <RouterLink to="/permissions">Permissions</RouterLink>
@@ -44,10 +44,10 @@ async function logout() {
         <small>{{ auth.email }}</small>
       </li>
       <li v-if="auth.isAuthenticated">
-        <button class="secondary" style="margin: 0" @click="logout">Déconnexion</button>
+        <button class="secondary" style="margin: 0" @click="logout">Sign out</button>
       </li>
       <li v-else>
-        <RouterLink to="/login" role="button" class="secondary">Connexion</RouterLink>
+        <RouterLink to="/login" role="button" class="secondary">Sign in</RouterLink>
       </li>
     </ul>
   </nav>
