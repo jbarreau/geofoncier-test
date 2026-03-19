@@ -14,7 +14,6 @@
    - [Database Boundaries and Data Sharing](#database-boundaries-and-data-sharing)
 4. [Implementation Approach](#4-implementation-approach)
    - [AI as a Productive Contributor, but Not Autonomous](#ai-as-a-productive-contributor-but-not-autonomous)
-5. [What I Would Improve in the Test Subject](#5-what-i-would-improve-in-the-test-subject)
 
 ---
 
