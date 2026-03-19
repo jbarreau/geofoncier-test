@@ -2,6 +2,40 @@
 
 <!-- version list -->
 
+## v1.2.0 (2026-03-19)
+
+### Bug Fixes
+
+- **ci**: Update e2e working directory to backend/test_e2e
+  ([#28](https://github.com/jbarreau/geofoncier-test/pull/28),
+  [`bd85267`](https://github.com/jbarreau/geofoncier-test/commit/bd85267fd67b66a273e1fd877e72529b021b2f16))
+
+- **dx**: Fix failing tests, use black, restore .vscode gitignore
+  ([#28](https://github.com/jbarreau/geofoncier-test/pull/28),
+  [`bd85267`](https://github.com/jbarreau/geofoncier-test/commit/bd85267fd67b66a273e1fd877e72529b021b2f16))
+
+### Chores
+
+- **gitignore**: Update frontend gitignore
+  ([`9821394`](https://github.com/jbarreau/geofoncier-test/commit/98213940a0755b05725c5c8db4dbc0feaa38e439))
+
+### Features
+
+- **dx**: Translate UI to English, move test_e2e, add VS Code config
+  ([#28](https://github.com/jbarreau/geofoncier-test/pull/28),
+  [`bd85267`](https://github.com/jbarreau/geofoncier-test/commit/bd85267fd67b66a273e1fd877e72529b021b2f16))
+
+- **dx**: Translate UI to English, move test_e2e, add vscode config
+  ([#28](https://github.com/jbarreau/geofoncier-test/pull/28),
+  [`bd85267`](https://github.com/jbarreau/geofoncier-test/commit/bd85267fd67b66a273e1fd877e72529b021b2f16))
+
+### Testing
+
+- **frontend**: Add missing coverage for error branches and interactions
+  ([#28](https://github.com/jbarreau/geofoncier-test/pull/28),
+  [`bd85267`](https://github.com/jbarreau/geofoncier-test/commit/bd85267fd67b66a273e1fd877e72529b021b2f16))
+
+
 ## v1.1.0 (2026-03-18)
 
 ### Bug Fixes
