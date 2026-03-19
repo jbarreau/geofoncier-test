@@ -138,4 +138,60 @@ describe('AnalyticsView — error handling', () => {
     await flushPromises()
     expect(wrapper.text()).toContain('No overdue tasks')
   })
+
+  it('shows empty state when summary total is zero', async () => {
+    vi.spyOn(analyticsModule, 'analyticsApi', 'get').mockReturnValue({
+      getSummary: vi.fn().mockResolvedValue({ total: 0, by_status: [] }),
+      getOverdue: vi.fn().mockResolvedValue({ count: 0, tasks: [] }),
+      getOverTime: vi.fn().mockResolvedValue(OVER_TIME),
+      getByUser: vi.fn().mockResolvedValue(BY_USER),
+    })
+    const wrapper = mountAnalytics()
+    await flushPromises()
+    const empties = wrapper.findAll('.empty')
+    expect(empties.length).toBeGreaterThan(0)
+  })
+
+  it('shows error message when overdue fetch fails', async () => {
+    vi.spyOn(analyticsModule, 'analyticsApi', 'get').mockReturnValue({
+      getSummary: vi.fn().mockResolvedValue(SUMMARY),
+      getOverdue: vi.fn().mockRejectedValue(new Error('Network error')),
+      getOverTime: vi.fn().mockResolvedValue(OVER_TIME),
+      getByUser: vi.fn().mockResolvedValue(BY_USER),
+    })
+    const wrapper = mountAnalytics()
+    await flushPromises()
+    expect(wrapper.text()).toContain('Failed to load data')
+  })
+
+  it('shows error message when overTime fetch fails', async () => {
+    vi.spyOn(analyticsModule, 'analyticsApi', 'get').mockReturnValue({
+      getSummary: vi.fn().mockResolvedValue(SUMMARY),
+      getOverdue: vi.fn().mockResolvedValue(OVERDUE),
+      getOverTime: vi.fn().mockRejectedValue(new Error('Network error')),
+      getByUser: vi.fn().mockResolvedValue(BY_USER),
+    })
+    const wrapper = mountAnalytics()
+    await flushPromises()
+    expect(wrapper.text()).toContain('Failed to load data')
+  })
+
+  it('shows by-user error when admin getByUser fetch fails', async () => {
+    vi.spyOn(analyticsModule, 'analyticsApi', 'get').mockReturnValue({
+      getSummary: vi.fn().mockResolvedValue(SUMMARY),
+      getOverdue: vi.fn().mockResolvedValue(OVERDUE),
+      getOverTime: vi.fn().mockResolvedValue(OVER_TIME),
+      getByUser: vi.fn().mockRejectedValue(new Error('Network error')),
+    })
+    vi.spyOn(usersModule, 'usersApi', 'get').mockReturnValue({
+      list: vi.fn().mockResolvedValue(USERS),
+      get: vi.fn(),
+      update: vi.fn(),
+      assignRole: vi.fn(),
+      removeRole: vi.fn(),
+    })
+    const wrapper = mountAnalytics(['analytics:read', 'analytics:admin', 'users:manage'])
+    await flushPromises()
+    expect(wrapper.text()).toContain('Failed to load data')
+  })
 })

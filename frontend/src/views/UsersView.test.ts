@@ -133,4 +133,53 @@ describe('UsersView', () => {
 
     expect(usersModule.usersApi.removeRole).toHaveBeenCalledWith('u1', 'r1')
   })
+
+  it('shows error when toggleActive fails', async () => {
+    vi.spyOn(usersModule.usersApi, 'list').mockResolvedValue([fakeUser])
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([])
+    vi.spyOn(usersModule.usersApi, 'update').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const statusBtn = wrapper.find('button')
+    await statusBtn.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to update user')
+  })
+
+  it('shows error when assignRole fails', async () => {
+    vi.spyOn(usersModule.usersApi, 'list').mockResolvedValue([fakeUser])
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([fakeRole])
+    vi.spyOn(usersModule.usersApi, 'assignRole').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const select = wrapper.find('select')
+    await select.setValue('r1')
+    await select.trigger('change')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to assign role')
+  })
+
+  it('shows error when removeRole fails', async () => {
+    vi.spyOn(usersModule.usersApi, 'list').mockResolvedValue([fakeUserWithRole])
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([fakeRole])
+    vi.spyOn(usersModule.usersApi, 'removeRole').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const roleBadge = wrapper.find('kbd')
+    await roleBadge.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to remove role')
+  })
 })

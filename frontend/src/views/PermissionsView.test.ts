@@ -178,4 +178,39 @@ describe('PermissionsView', () => {
     expect(deleteSpy).not.toHaveBeenCalled()
     expect(wrapper.text()).toContain('tasks:read')
   })
+
+  it('shows error when saveEdit fails', async () => {
+    vi.spyOn(permApi.permissionsApi, 'list').mockResolvedValue([fakePerm])
+    vi.spyOn(permApi.permissionsApi, 'update').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit')
+    await editBtn!.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const saveBtn = wrapper.findAll('button').find((b) => b.text() === 'Save')
+    await saveBtn!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to update permission')
+  })
+
+  it('shows error when delete fails', async () => {
+    vi.spyOn(permApi.permissionsApi, 'list').mockResolvedValue([fakePerm])
+    vi.spyOn(permApi.permissionsApi, 'delete').mockRejectedValue(new Error('HTTP 500'))
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const deleteBtn = wrapper.findAll('button').find((b) => b.text() === 'Delete')
+    await deleteBtn!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to delete permission')
+  })
 })

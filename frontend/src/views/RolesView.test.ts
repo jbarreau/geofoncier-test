@@ -228,4 +228,74 @@ describe('RolesView', () => {
 
     expect(rolesModule.rolesApi.removePermission).toHaveBeenCalledWith('r1', 'p1')
   })
+
+  it('shows error when saveEdit fails', async () => {
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([fakeRole2])
+    vi.spyOn(permModule.permissionsApi, 'list').mockResolvedValue([])
+    vi.spyOn(rolesModule.rolesApi, 'update').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit')
+    await editBtn!.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const saveBtn = wrapper.findAll('button').find((b) => b.text() === 'Save')
+    await saveBtn!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to update role')
+  })
+
+  it('shows error when deleteRole fails', async () => {
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([fakeRole2])
+    vi.spyOn(permModule.permissionsApi, 'list').mockResolvedValue([])
+    vi.spyOn(rolesModule.rolesApi, 'delete').mockRejectedValue(new Error('HTTP 500'))
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const deleteBtn = wrapper.findAll('button').find((b) => b.text() === 'Delete')
+    await deleteBtn!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to delete role')
+  })
+
+  it('shows error when assignPermission fails', async () => {
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([fakeRole2])
+    vi.spyOn(permModule.permissionsApi, 'list').mockResolvedValue([fakePerm])
+    vi.spyOn(rolesModule.rolesApi, 'assignPermission').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const select = wrapper.find('select')
+    await select.setValue('p1')
+    await select.trigger('change')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to assign permission')
+  })
+
+  it('shows error when removePermission fails', async () => {
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([fakeRole])
+    vi.spyOn(permModule.permissionsApi, 'list').mockResolvedValue([fakePerm])
+    vi.spyOn(rolesModule.rolesApi, 'removePermission').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const badge = wrapper.find('kbd')
+    await badge.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to remove permission')
+  })
 })

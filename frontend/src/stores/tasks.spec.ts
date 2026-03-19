@@ -91,4 +91,28 @@ describe('useTasksStore', () => {
     expect(store.tasks).toHaveLength(1)
     expect(store.tasks[0].id).toBe('task-2')
   })
+
+  it('create sets error and re-throws on failure', async () => {
+    vi.mocked(tasksApiModule.tasksApi.create).mockRejectedValue(new Error('network'))
+    const store = useTasksStore()
+
+    await expect(store.create({ title: 'New' })).rejects.toThrow()
+    expect(store.error).toBe('Failed to create task.')
+  })
+
+  it('update sets error and re-throws on failure', async () => {
+    vi.mocked(tasksApiModule.tasksApi.update).mockRejectedValue(new Error('network'))
+    const store = useTasksStore()
+
+    await expect(store.update('task-1', { title: 'x' })).rejects.toThrow()
+    expect(store.error).toBe('Failed to update task.')
+  })
+
+  it('remove sets error and re-throws on failure', async () => {
+    vi.mocked(tasksApiModule.tasksApi.remove).mockRejectedValue(new Error('network'))
+    const store = useTasksStore()
+
+    await expect(store.remove('task-1')).rejects.toThrow()
+    expect(store.error).toBe('Failed to delete task.')
+  })
 })

@@ -101,4 +101,65 @@ describe('TasksView', () => {
 
     expect(wrapper.find('[data-testid="btn-delete"]').exists()).toBe(true)
   })
+
+  it('opens create modal and submits new task', async () => {
+    vi.mocked(tasksApi.list).mockResolvedValue([])
+    vi.mocked(tasksApi.create).mockResolvedValue({ ...mockTask, id: 'task-new', title: 'New task' })
+    const wrapper = mountWith(['tasks:read', 'tasks:create'])
+    await flushPromises()
+
+    await wrapper.find('[data-testid="btn-create"]').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const titleInput = wrapper.find('input[type="text"]')
+    await titleInput.setValue('New task')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(tasksApi.create).toHaveBeenCalledOnce()
+  })
+
+  it('opens edit modal with task data and saves', async () => {
+    vi.mocked(tasksApi.list).mockResolvedValue([mockTask])
+    vi.mocked(tasksApi.update).mockResolvedValue({ ...mockTask, title: 'Updated task' })
+    const wrapper = mountWith(['tasks:read', 'tasks:update'])
+    await flushPromises()
+
+    await wrapper.find('[data-testid="btn-edit"]').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Edit task')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(tasksApi.update).toHaveBeenCalledWith(
+      'task-1',
+      expect.objectContaining({ title: 'Verify boundary markers' }),
+    )
+  })
+
+  it('deletes a task after confirm', async () => {
+    vi.mocked(tasksApi.list).mockResolvedValue([mockTask])
+    vi.mocked(tasksApi.remove).mockResolvedValue(undefined)
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const wrapper = mountWith(['tasks:read', 'tasks:update', 'tasks:delete'], ['admin'])
+    await flushPromises()
+
+    await wrapper.find('[data-testid="btn-delete"]').trigger('click')
+    await flushPromises()
+
+    expect(tasksApi.remove).toHaveBeenCalledWith('task-1')
+  })
+
+  it('does not delete when confirm is cancelled', async () => {
+    vi.mocked(tasksApi.list).mockResolvedValue([mockTask])
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const wrapper = mountWith(['tasks:read', 'tasks:update', 'tasks:delete'], ['admin'])
+    await flushPromises()
+
+    await wrapper.find('[data-testid="btn-delete"]').trigger('click')
+    await flushPromises()
+
+    expect(tasksApi.remove).not.toHaveBeenCalled()
+  })
 })
