@@ -1,0 +1,5 @@
+packages:
+  - 'shell-app'
+  - 'auth-front'
+  - 'task-front'
+  - 'analytics-front'
