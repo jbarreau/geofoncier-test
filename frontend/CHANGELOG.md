@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/jbarreau/geofoncier-test/compare/frontend/v1.1.0...frontend/v1.2.0) (2026-03-19)
+
+### Features
+
+* **dx:** translate UI to English, move test_e2e, add VS Code config ([#28](https://github.com/jbarreau/geofoncier-test/issues/28)) ([bd85267](https://github.com/jbarreau/geofoncier-test/commit/bd85267fd67b66a273e1fd877e72529b021b2f16))
+
 ## [1.1.0](https://github.com/jbarreau/geofoncier-test/compare/frontend/v1.0.1...frontend/v1.1.0) (2026-03-18)
 
 ### Features
