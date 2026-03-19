@@ -64,7 +64,7 @@ describe('RegisterView', () => {
     await flushPromises()
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Impossible de créer le compte')
+    expect(wrapper.text()).toContain('Failed to create account')
   })
 
   it('sets aria-busy on button while loading', async () => {

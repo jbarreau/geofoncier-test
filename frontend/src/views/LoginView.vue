@@ -22,7 +22,7 @@ async function submit() {
     const redirect = (route.query.redirect as string) ?? '/'
     await router.push(redirect)
   } catch {
-    error.value = 'Identifiants invalides.'
+    error.value = 'Invalid credentials.'
   } finally {
     loading.value = false
   }
@@ -33,8 +33,8 @@ async function submit() {
   <main class="container">
     <article style="max-width: 400px; margin: 4rem auto">
       <hgroup>
-        <h2>Connexion</h2>
-        <p>Géofoncier — espace administration</p>
+        <h2>Sign in</h2>
+        <p>Géofoncier — administration</p>
       </hgroup>
       <form @submit.prevent="submit">
         <label>
@@ -42,14 +42,14 @@ async function submit() {
           <input v-model="email" type="email" required autocomplete="username" />
         </label>
         <label>
-          Mot de passe
+          Password
           <input v-model="password" type="password" required autocomplete="current-password" />
         </label>
         <p v-if="error" role="alert" style="color: var(--pico-color-red-500)">{{ error }}</p>
-        <button type="submit" :aria-busy="loading">Se connecter</button>
+        <button type="submit" :aria-busy="loading">Sign in</button>
       </form>
       <footer>
-        <small>Pas encore de compte ? <RouterLink to="/register">Créer un compte</RouterLink></small>
+        <small>No account yet? <RouterLink to="/register">Create an account</RouterLink></small>
       </footer>
     </article>
   </main>

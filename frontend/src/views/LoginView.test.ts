@@ -66,7 +66,7 @@ describe('LoginView', () => {
     await flushPromises()
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Identifiants invalides')
+    expect(wrapper.text()).toContain('Invalid credentials')
   })
 
   it('sets aria-busy on button while loading', async () => {

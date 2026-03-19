@@ -200,11 +200,11 @@ jobs:
           done
 
       - name: Install e2e dependencies
-        working-directory: test_e2e
+        working-directory: backend/test_e2e
         run: poetry install --no-root
 
       - name: Run e2e tests
-        working-directory: test_e2e
+        working-directory: backend/test_e2e
         env:
           E2E_AUTH_URL: http://localhost:8000
           E2E_TASK_URL: http://localhost:8001

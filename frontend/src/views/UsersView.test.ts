@@ -52,7 +52,7 @@ describe('UsersView', () => {
     await flushPromises()
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Impossible de charger les données')
+    expect(wrapper.text()).toContain('Failed to load data')
   })
 
   it('shows empty state when no users', async () => {
@@ -61,7 +61,7 @@ describe('UsersView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Aucun utilisateur')
+    expect(wrapper.text()).toContain('No users found')
   })
 
   it('toggleActive calls usersApi.update with inverted is_active', async () => {
@@ -87,8 +87,8 @@ describe('UsersView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Actif')
-    expect(wrapper.text()).toContain('Inactif')
+    expect(wrapper.text()).toContain('Active')
+    expect(wrapper.text()).toContain('Inactive')
   })
 
   it('shows role badges and unassigned roles dropdown', async () => {
@@ -132,5 +132,54 @@ describe('UsersView', () => {
     await flushPromises()
 
     expect(usersModule.usersApi.removeRole).toHaveBeenCalledWith('u1', 'r1')
+  })
+
+  it('shows error when toggleActive fails', async () => {
+    vi.spyOn(usersModule.usersApi, 'list').mockResolvedValue([fakeUser])
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([])
+    vi.spyOn(usersModule.usersApi, 'update').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const statusBtn = wrapper.find('button')
+    await statusBtn.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to update user')
+  })
+
+  it('shows error when assignRole fails', async () => {
+    vi.spyOn(usersModule.usersApi, 'list').mockResolvedValue([fakeUser])
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([fakeRole])
+    vi.spyOn(usersModule.usersApi, 'assignRole').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const select = wrapper.find('select')
+    await select.setValue('r1')
+    await select.trigger('change')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to assign role')
+  })
+
+  it('shows error when removeRole fails', async () => {
+    vi.spyOn(usersModule.usersApi, 'list').mockResolvedValue([fakeUserWithRole])
+    vi.spyOn(rolesModule.rolesApi, 'list').mockResolvedValue([fakeRole])
+    vi.spyOn(usersModule.usersApi, 'removeRole').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const roleBadge = wrapper.find('kbd')
+    await roleBadge.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to remove role')
   })
 })

@@ -3,12 +3,12 @@
     <h1>Analytics</h1>
 
     <div class="analytics-grid">
-      <!-- Répartition des statuts -->
+      <!-- Status distribution -->
       <article :aria-busy="loadingMain">
-        <header><strong>Répartition des statuts</strong></header>
+        <header><strong>Status distribution</strong></header>
         <template v-if="!loadingMain">
           <p v-if="summaryError" class="error">{{ summaryError }}</p>
-          <p v-else-if="!summaryData?.total" class="empty">Aucune donnée</p>
+          <p v-else-if="!summaryData?.total" class="empty">No data</p>
           <apexchart
             v-else
             type="donut"
@@ -19,12 +19,12 @@
         </template>
       </article>
 
-      <!-- Évolution dans le temps -->
+      <!-- Over time trend -->
       <article :aria-busy="loadingMain">
-        <header><strong>Tâches créées (30 derniers jours)</strong></header>
+        <header><strong>Tasks created (last 30 days)</strong></header>
         <template v-if="!loadingMain">
           <p v-if="overTimeError" class="error">{{ overTimeError }}</p>
-          <p v-else-if="!overTimeData?.points.length" class="empty">Aucune donnée</p>
+          <p v-else-if="!overTimeData?.points.length" class="empty">No data</p>
           <apexchart
             v-else
             type="area"
@@ -35,22 +35,22 @@
         </template>
       </article>
 
-      <!-- Tâches en retard -->
+      <!-- Overdue tasks -->
       <article :aria-busy="loadingMain" class="overdue-card">
         <header>
-          <strong>Tâches en retard</strong>
+          <strong>Overdue tasks</strong>
           <span v-if="overdueData" class="badge">{{ overdueData.count }}</span>
         </header>
         <template v-if="!loadingMain">
           <p v-if="overdueError" class="error">{{ overdueError }}</p>
-          <p v-else-if="!overdueData?.count" class="empty">Aucune tâche en retard</p>
+          <p v-else-if="!overdueData?.count" class="empty">No overdue tasks</p>
           <div v-else class="overdue-table-wrapper">
             <table>
               <thead>
                 <tr>
-                  <th>Titre</th>
-                  <th>Statut</th>
-                  <th>Échéance</th>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Due date</th>
                 </tr>
               </thead>
               <tbody>
@@ -69,12 +69,12 @@
         </template>
       </article>
 
-      <!-- Tâches par utilisateur (admin uniquement) -->
+      <!-- Tasks by user (admin only) -->
       <article v-if="auth.hasPermission('analytics:admin')" :aria-busy="loadingByUser">
-        <header><strong>Tâches par utilisateur</strong></header>
+        <header><strong>Tasks by user</strong></header>
         <template v-if="!loadingByUser">
           <p v-if="byUserError" class="error">{{ byUserError }}</p>
-          <p v-else-if="!byUserData?.by_user.length" class="empty">Aucune donnée</p>
+          <p v-else-if="!byUserData?.by_user.length" class="empty">No data</p>
           <apexchart
             v-else
             type="bar"
@@ -124,19 +124,19 @@ onMounted(async () => {
   if (summaryResult.status === 'fulfilled') {
     summaryData.value = summaryResult.value
   } else {
-    summaryError.value = 'Impossible de charger les données'
+    summaryError.value = 'Failed to load data'
   }
 
   if (overdueResult.status === 'fulfilled') {
     overdueData.value = overdueResult.value
   } else {
-    overdueError.value = 'Impossible de charger les données'
+    overdueError.value = 'Failed to load data'
   }
 
   if (overTimeResult.status === 'fulfilled') {
     overTimeData.value = overTimeResult.value
   } else {
-    overTimeError.value = 'Impossible de charger les données'
+    overTimeError.value = 'Failed to load data'
   }
 
   loadingMain.value = false
@@ -152,7 +152,7 @@ onMounted(async () => {
       if (byUserResult.status === 'fulfilled') {
         byUserData.value = byUserResult.value
       } else {
-        byUserError.value = 'Impossible de charger les données'
+        byUserError.value = 'Failed to load data'
       }
       if (usersResult.status === 'fulfilled') {
         userEmailMap.value = Object.fromEntries(usersResult.value.map(u => [u.id, u.email]))
@@ -165,12 +165,12 @@ onMounted(async () => {
 
 // Helpers
 function statusLabel(status: string): string {
-  const labels: Record<string, string> = { todo: 'À faire', doing: 'En cours', done: 'Terminé' }
+  const labels: Record<string, string> = { todo: 'To do', doing: 'In progress', done: 'Done' }
   return labels[status] ?? status
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 // Donut chart (status distribution)
@@ -181,7 +181,7 @@ const donutSeries = computed(() => {
 })
 
 const donutOptions = computed(() => ({
-  labels: ['À faire', 'En cours', 'Terminé'],
+  labels: ['To do', 'In progress', 'Done'],
   colors: ['#3b82f6', '#f59e0b', '#22c55e'],
   legend: { position: 'bottom' },
   dataLabels: { enabled: true },
@@ -193,7 +193,7 @@ const donutOptions = computed(() => ({
 // Area chart (over time)
 const areaSeries = computed(() => {
   if (!overTimeData.value) return []
-  return [{ name: 'Tâches créées', data: overTimeData.value.points.map(p => p.count) }]
+  return [{ name: 'Tasks created', data: overTimeData.value.points.map(p => p.count) }]
 })
 
 const areaOptions = computed(() => ({
@@ -219,7 +219,7 @@ const areaOptions = computed(() => ({
 // Bar chart (by user)
 const barSeries = computed(() => {
   if (!byUserData.value) return []
-  return [{ name: 'Tâches', data: byUserData.value.by_user.map(u => u.count) }]
+  return [{ name: 'Tasks', data: byUserData.value.by_user.map(u => u.count) }]
 })
 
 const barOptions = computed(() => ({
@@ -233,7 +233,7 @@ const barOptions = computed(() => ({
   },
   dataLabels: { enabled: false },
   tooltip: {
-    y: { formatter: (v: number) => `${v} tâche${v > 1 ? 's' : ''}` },
+    y: { formatter: (v: number) => `${v} task${v > 1 ? 's' : ''}` },
   },
 }))
 </script>

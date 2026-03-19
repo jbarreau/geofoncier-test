@@ -27,7 +27,7 @@ async function load() {
   try {
     permissions.value = await permissionsApi.list()
   } catch {
-    error.value = 'Impossible de charger les permissions.'
+    error.value = 'Failed to load permissions.'
   } finally {
     loading.value = false
   }
@@ -47,7 +47,7 @@ async function create() {
     createName.value = ''
     createDescription.value = ''
   } catch {
-    error.value = 'Impossible de créer la permission.'
+    error.value = 'Failed to create permission.'
   } finally {
     creating.value = false
   }
@@ -72,18 +72,18 @@ async function saveEdit() {
     if (idx !== -1) permissions.value[idx] = updated
     editing.value = null
   } catch {
-    error.value = 'Impossible de mettre à jour la permission.'
+    error.value = 'Failed to update permission.'
   }
 }
 
 async function remove(perm: Permission) {
-  if (!confirm(`Supprimer la permission « ${perm.name} » ?`)) return
+  if (!confirm(`Delete permission "${perm.name}"?`)) return
   error.value = null
   try {
     await permissionsApi.delete(perm.id)
     permissions.value = permissions.value.filter((p) => p.id !== perm.id)
   } catch {
-    error.value = 'Impossible de supprimer la permission.'
+    error.value = 'Failed to delete permission.'
   }
 }
 
@@ -94,14 +94,14 @@ onMounted(load)
   <main class="container">
     <hgroup>
       <h1>Permissions</h1>
-      <p>Gestion des permissions applicatives</p>
+      <p>Application permission management</p>
     </hgroup>
 
     <p v-if="error" role="alert" class="error">{{ error }}</p>
 
-    <!-- Formulaire d'ajout -->
+    <!-- Add form -->
     <article>
-      <header><strong>Ajouter une permission</strong></header>
+      <header><strong>Add a permission</strong></header>
       <form @submit.prevent="create">
         <div class="grid">
           <input
@@ -113,10 +113,10 @@ onMounted(load)
           />
           <input
             v-model="createDescription"
-            placeholder="Description (optionnel)"
+            placeholder="Description (optional)"
             maxlength="500"
           />
-          <button type="submit" :aria-busy="creating">Ajouter</button>
+          <button type="submit" :aria-busy="creating">Add</button>
         </div>
       </form>
     </article>
@@ -127,15 +127,15 @@ onMounted(load)
       <table>
         <thead>
           <tr>
-            <th>Nom</th>
+            <th>Name</th>
             <th>Description</th>
-            <th>Créé le</th>
+            <th>Created</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="permissions.length === 0">
-            <td colspan="4" style="text-align: center">Aucune permission définie.</td>
+            <td colspan="4" style="text-align: center">No permissions defined.</td>
           </tr>
           <tr v-for="perm in permissions" :key="perm.id">
             <template v-if="editing?.id === perm.id">
@@ -145,25 +145,25 @@ onMounted(load)
               <td>
                 <input v-model="editDescription" maxlength="500" />
               </td>
-              <td>{{ new Date(perm.created_at).toLocaleDateString('fr-FR') }}</td>
+              <td>{{ new Date(perm.created_at).toLocaleDateString('en-GB') }}</td>
               <td>
-                <button @click="saveEdit" style="margin-right: 0.5rem">Enregistrer</button>
-                <button class="secondary" @click="editing = null">Annuler</button>
+                <button @click="saveEdit" style="margin-right: 0.5rem">Save</button>
+                <button class="secondary" @click="editing = null">Cancel</button>
               </td>
             </template>
             <template v-else>
               <td><code>{{ perm.name }}</code></td>
               <td>{{ perm.description ?? '—' }}</td>
-              <td>{{ new Date(perm.created_at).toLocaleDateString('fr-FR') }}</td>
+              <td>{{ new Date(perm.created_at).toLocaleDateString('en-GB') }}</td>
               <td>
                 <button
                   class="secondary"
                   style="margin-right: 0.5rem"
                   @click="startEdit(perm)"
                 >
-                  Modifier
+                  Edit
                 </button>
-                <button class="contrast" @click="remove(perm)">Supprimer</button>
+                <button class="contrast" @click="remove(perm)">Delete</button>
               </td>
             </template>
           </tr>

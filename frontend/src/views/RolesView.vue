@@ -29,7 +29,7 @@ async function load() {
     roles.value = fetchedRoles
     allPermissions.value = fetchedPermissions
   } catch {
-    error.value = 'Impossible de charger les données.'
+    error.value = 'Failed to load data.'
   } finally {
     loading.value = false
   }
@@ -50,7 +50,7 @@ async function createRole() {
     newName.value = ''
     newDescription.value = ''
   } catch {
-    error.value = 'Impossible de créer le rôle. Le nom existe peut-être déjà.'
+    error.value = 'Failed to create role. The name may already exist.'
   } finally {
     creating.value = false
   }
@@ -77,18 +77,18 @@ async function saveEdit(role: Role) {
     if (idx !== -1) roles.value[idx] = updated
     editingId.value = null
   } catch {
-    error.value = 'Impossible de mettre à jour le rôle.'
+    error.value = 'Failed to update role.'
   }
 }
 
 async function deleteRole(role: Role) {
-  if (!confirm(`Supprimer le rôle « ${role.name} » ?`)) return
+  if (!confirm(`Delete role "${role.name}"?`)) return
   error.value = null
   try {
     await rolesApi.delete(role.id)
     roles.value = roles.value.filter((r) => r.id !== role.id)
   } catch {
-    error.value = 'Impossible de supprimer le rôle.'
+    error.value = 'Failed to delete role.'
   }
 }
 
@@ -98,7 +98,7 @@ async function assignPermission(role: Role, permissionId: string) {
     const idx = roles.value.findIndex((r) => r.id === role.id)
     if (idx !== -1) roles.value[idx] = updated
   } catch {
-    error.value = "Impossible d'assigner la permission."
+    error.value = 'Failed to assign permission.'
   }
 }
 
@@ -108,7 +108,7 @@ async function removePermission(role: Role, permissionId: string) {
     const idx = roles.value.findIndex((r) => r.id === role.id)
     if (idx !== -1) roles.value[idx] = updated
   } catch {
-    error.value = 'Impossible de retirer la permission.'
+    error.value = 'Failed to remove permission.'
   }
 }
 
@@ -121,26 +121,26 @@ function unassignedPermissions(role: Role): Permission[] {
 <template>
   <main class="container">
     <hgroup>
-      <h2>Rôles</h2>
-      <p>Gestion des rôles et attribution des permissions</p>
+      <h2>Roles</h2>
+      <p>Role management and permission assignment</p>
     </hgroup>
 
     <p v-if="error" role="alert" style="color: var(--pico-color-red-500)">{{ error }}</p>
 
     <!-- Create form -->
     <article>
-      <h4>Nouveau rôle</h4>
+      <h4>New role</h4>
       <form @submit.prevent="createRole" style="display: flex; gap: 0.5rem; align-items: flex-end">
         <label style="flex: 1; margin: 0">
-          Nom
-          <input v-model="newName" type="text" required placeholder="ex: admin" />
+          Name
+          <input v-model="newName" type="text" required placeholder="e.g. admin" />
         </label>
         <label style="flex: 2; margin: 0">
           Description
-          <input v-model="newDescription" type="text" placeholder="Optionnel" />
+          <input v-model="newDescription" type="text" placeholder="Optional" />
         </label>
         <button type="submit" :aria-busy="creating" style="margin: 0; align-self: flex-end">
-          Créer
+          Create
         </button>
       </form>
     </article>
@@ -151,7 +151,7 @@ function unassignedPermissions(role: Role): Permission[] {
       <table>
         <thead>
           <tr>
-            <th>Nom</th>
+            <th>Name</th>
             <th>Description</th>
             <th>Permissions</th>
             <th>Actions</th>
@@ -166,10 +166,10 @@ function unassignedPermissions(role: Role): Permission[] {
               </td>
               <td colspan="2">
                 <button class="secondary" style="margin: 0 0.5rem 0 0" @click="saveEdit(role)">
-                  Sauvegarder
+                  Save
                 </button>
                 <button class="outline secondary" style="margin: 0" @click="cancelEdit">
-                  Annuler
+                  Cancel
                 </button>
               </td>
             </template>
@@ -181,7 +181,7 @@ function unassignedPermissions(role: Role): Permission[] {
               <td>{{ role.description ?? '—' }}</td>
               <td>
                 <span v-if="role.permissions.length === 0" style="color: var(--pico-muted-color)">
-                  Aucune
+                  None
                 </span>
                 <span
                   v-for="perm in role.permissions"
@@ -221,14 +221,14 @@ function unassignedPermissions(role: Role): Permission[] {
                   style="margin: 0 0.5rem 0 0; padding: 0.25rem 0.75rem; font-size: 0.85rem"
                   @click="startEdit(role)"
                 >
-                  Modifier
+                  Edit
                 </button>
                 <button
                   class="outline contrast"
                   style="margin: 0; padding: 0.25rem 0.75rem; font-size: 0.85rem"
                   @click="deleteRole(role)"
                 >
-                  Supprimer
+                  Delete
                 </button>
               </td>
             </template>
@@ -236,7 +236,7 @@ function unassignedPermissions(role: Role): Permission[] {
         </tbody>
       </table>
       <p v-if="roles.length === 0" style="text-align: center; color: var(--pico-muted-color)">
-        Aucun rôle.
+        No roles found.
       </p>
     </template>
   </main>

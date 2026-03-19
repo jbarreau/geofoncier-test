@@ -38,7 +38,7 @@ describe('PermissionsView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Aucune permission définie')
+    expect(wrapper.text()).toContain('No permissions defined')
   })
 
   it('shows error when loading fails', async () => {
@@ -47,7 +47,7 @@ describe('PermissionsView', () => {
     await flushPromises()
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Impossible de charger les permissions')
+    expect(wrapper.text()).toContain('Failed to load permissions')
   })
 
   it('creates a new permission and adds it to the list', async () => {
@@ -95,20 +95,20 @@ describe('PermissionsView', () => {
     await flushPromises()
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Impossible de créer la permission')
+    expect(wrapper.text()).toContain('Failed to create permission')
   })
 
-  it('enters edit mode when Modifier is clicked', async () => {
+  it('enters edit mode when Edit is clicked', async () => {
     vi.spyOn(permApi.permissionsApi, 'list').mockResolvedValue([fakePerm])
     const wrapper = mountView()
     await flushPromises()
 
-    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Modifier')
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit')
     await editBtn!.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.text()).toContain('Enregistrer')
-    expect(wrapper.text()).toContain('Annuler')
+    expect(wrapper.text()).toContain('Save')
+    expect(wrapper.text()).toContain('Cancel')
   })
 
   it('saves edit and updates the list', async () => {
@@ -118,11 +118,11 @@ describe('PermissionsView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Modifier')
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit')
     await editBtn!.trigger('click')
     await wrapper.vm.$nextTick()
 
-    const saveBtn = wrapper.findAll('button').find((b) => b.text() === 'Enregistrer')
+    const saveBtn = wrapper.findAll('button').find((b) => b.text() === 'Save')
     await saveBtn!.trigger('click')
     await flushPromises()
 
@@ -130,21 +130,21 @@ describe('PermissionsView', () => {
     expect(wrapper.text()).toContain('tasks:updated')
   })
 
-  it('cancels edit when Annuler is clicked', async () => {
+  it('cancels edit when Cancel is clicked', async () => {
     vi.spyOn(permApi.permissionsApi, 'list').mockResolvedValue([fakePerm])
     const wrapper = mountView()
     await flushPromises()
 
-    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Modifier')
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit')
     await editBtn!.trigger('click')
     await wrapper.vm.$nextTick()
 
-    const cancelBtn = wrapper.findAll('button').find((b) => b.text() === 'Annuler')
+    const cancelBtn = wrapper.findAll('button').find((b) => b.text() === 'Cancel')
     await cancelBtn!.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.text()).toContain('Modifier')
-    expect(wrapper.text()).not.toContain('Enregistrer')
+    expect(wrapper.text()).toContain('Edit')
+    expect(wrapper.text()).not.toContain('Save')
   })
 
   it('deletes a permission after confirmation', async () => {
@@ -155,7 +155,7 @@ describe('PermissionsView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    const deleteBtn = wrapper.findAll('button').find((b) => b.text() === 'Supprimer')
+    const deleteBtn = wrapper.findAll('button').find((b) => b.text() === 'Delete')
     await deleteBtn!.trigger('click')
     await flushPromises()
 
@@ -171,11 +171,46 @@ describe('PermissionsView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    const deleteBtn = wrapper.findAll('button').find((b) => b.text() === 'Supprimer')
+    const deleteBtn = wrapper.findAll('button').find((b) => b.text() === 'Delete')
     await deleteBtn!.trigger('click')
     await flushPromises()
 
     expect(deleteSpy).not.toHaveBeenCalled()
     expect(wrapper.text()).toContain('tasks:read')
+  })
+
+  it('shows error when saveEdit fails', async () => {
+    vi.spyOn(permApi.permissionsApi, 'list').mockResolvedValue([fakePerm])
+    vi.spyOn(permApi.permissionsApi, 'update').mockRejectedValue(new Error('HTTP 500'))
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit')
+    await editBtn!.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const saveBtn = wrapper.findAll('button').find((b) => b.text() === 'Save')
+    await saveBtn!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to update permission')
+  })
+
+  it('shows error when delete fails', async () => {
+    vi.spyOn(permApi.permissionsApi, 'list').mockResolvedValue([fakePerm])
+    vi.spyOn(permApi.permissionsApi, 'delete').mockRejectedValue(new Error('HTTP 500'))
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const deleteBtn = wrapper.findAll('button').find((b) => b.text() === 'Delete')
+    await deleteBtn!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Failed to delete permission')
   })
 })
