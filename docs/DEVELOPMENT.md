@@ -91,11 +91,8 @@ pytest
 ### Code quality
 
 ```bash
-# Format Python code
-ruff format app/
-
-# Lint Python code
-ruff check app/
+# Format Python code (black)
+black app/
 
 # Type checking
 mypy app/
@@ -129,26 +126,10 @@ docker compose down -v
 ## Testing strategy
 
 - **Unit tests** (`backend/{service}/tests/`) — individual functions, mocked DB/Redis/external services
-- **Integration tests** (`backend/{service}/tests/integration/`) — full request-response cycles within a service, real DB and Redis
-- **E2E tests** (`backend/test_e2e/`) — API calls across services against a running docker compose stack
+- **E2E tests** (`backend/test_e2e/`) — API calls across all services; requires a running docker compose stack
 - **Frontend tests** (`frontend/src/**/*.test.ts`, `*.spec.ts`) — Vitest + Vue Test Utils component tests
 
 Test fixtures are defined in `conftest.py` at each level. The shared library provides an `rsa_key_pair` session-scoped pytest fixture for generating RSA-2048 keys in tests.
-
-### Test database
-
-Each service's integration tests use a separate test database. Configure in `conftest.py`:
-
-```python
-@pytest.fixture
-async def db_session(engine):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    async with AsyncSession(engine) as session:
-        yield session
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-```
 
 ---
 
@@ -264,5 +245,5 @@ Default ports: auth `8000`, task `8001`, analytics `8002`, postgres-auth `5432`,
 1. Run all tests: `pytest` (per service) and `cd frontend && npm test`
 2. Verify the full stack starts: `docker compose up --build`
 3. Check no secrets or `.env` files are staged: `git diff --cached`
-4. Run linting: `ruff check app/` and `mypy app/`
+4. Run formatting/type checking: `black app/` and `mypy app/`
 5. Write commit messages in English, imperative, concise

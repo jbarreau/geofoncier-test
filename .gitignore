@@ -33,7 +33,9 @@ htmlcov/
 
 # IDE
 .idea/
-# .vscode/ is committed (contains shared launch configs, extensions, and settings)
+.vscode/
+!.vscode/launch.json
+!.vscode/extensions.json
 *.swp
 
 # OS

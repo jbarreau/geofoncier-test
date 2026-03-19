@@ -87,8 +87,8 @@ describe('UsersView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Actif')
-    expect(wrapper.text()).toContain('Inactif')
+    expect(wrapper.text()).toContain('Active')
+    expect(wrapper.text()).toContain('Inactive')
   })
 
   it('shows role badges and unassigned roles dropdown', async () => {

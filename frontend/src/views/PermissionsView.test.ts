@@ -38,7 +38,7 @@ describe('PermissionsView', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Aucune permission définie')
+    expect(wrapper.text()).toContain('No permissions defined')
   })
 
   it('shows error when loading fails', async () => {

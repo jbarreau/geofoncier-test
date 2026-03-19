@@ -3,7 +3,7 @@
     // Python
     "ms-python.python",
     "ms-python.vscode-pylance",
-    "charliermarsh.ruff",
+    "ms-python.black-formatter",
     "ms-python.mypy-type-checker",
     "ms-python.debugpy",
     // Vue / TypeScript
