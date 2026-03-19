@@ -2,6 +2,34 @@
 
 <!-- version list -->
 
+## v1.2.1 (2026-03-19)
+
+### Bug Fixes
+
+- Badges at top of every text ([#31](https://github.com/jbarreau/geofoncier-test/pull/31),
+  [`b30f6b3`](https://github.com/jbarreau/geofoncier-test/commit/b30f6b30f9c7c6ac1880b4c2dca2e36e2823297e))
+
+### Chores
+
+- First iteration on the document ([#30](https://github.com/jbarreau/geofoncier-test/pull/30),
+  [`8a1543e`](https://github.com/jbarreau/geofoncier-test/commit/8a1543ef0d1f720fe28fe84d47ecc8530504004d))
+
+- Second iteration on the document ([#30](https://github.com/jbarreau/geofoncier-test/pull/30),
+  [`8a1543e`](https://github.com/jbarreau/geofoncier-test/commit/8a1543ef0d1f720fe28fe84d47ecc8530504004d))
+
+- **docs**: Add CI and coverage badges to README
+  ([#31](https://github.com/jbarreau/geofoncier-test/pull/31),
+  [`b30f6b3`](https://github.com/jbarreau/geofoncier-test/commit/b30f6b30f9c7c6ac1880b4c2dca2e36e2823297e))
+
+- **docs**: Move badges above description text
+  ([#31](https://github.com/jbarreau/geofoncier-test/pull/31),
+  [`b30f6b3`](https://github.com/jbarreau/geofoncier-test/commit/b30f6b30f9c7c6ac1880b4c2dca2e36e2823297e))
+
+- **methodology**: Add explanations in exercice_steps
+  ([#30](https://github.com/jbarreau/geofoncier-test/pull/30),
+  [`8a1543e`](https://github.com/jbarreau/geofoncier-test/commit/8a1543ef0d1f720fe28fe84d47ecc8530504004d))
+
+
 ## v1.2.0 (2026-03-19)
 
 ### Bug Fixes
